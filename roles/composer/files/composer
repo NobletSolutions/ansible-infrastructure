@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/bin/php -dmemory_limit=1G -dzend.enable_gc=0 /usr/local/bin/composer.phar "$@"
+

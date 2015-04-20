@@ -1,0 +1,10 @@
+---
+- name: Reconfigure SSH to only allow access using key-based authentication
+  lineinfile: dest=/etc/ssh/sshd_config 
+              regexp="^#?Pa/Users/gnat/Projects/carms/provision1.ymlsswordAuthentication"
+              line="PasswordAuthentication no"
+
+- name: Reconfigure SSH to only allow root access using key-based authentication
+  lineinfile: dest=/etc/ssh/sshd_config 
+              regexp="^#?PermitRootLogin"
+              line="PermitRootLogin without-password"
