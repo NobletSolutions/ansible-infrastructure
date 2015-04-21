@@ -1,4 +1,16 @@
 ---
-- name: Install fail2ban
-  yum: name=fail2ban state=latest
+- name: Install fail2ban, ipset
+  yum: name={{item}} state=latest
+  with_items:
+   - fail2ban
+   - ipset
 
+- name: Configure fail2ban
+  copy: src="defaults" 
+    dest="/etc/fail2ban/jail.d/00-defaults.conf" 
+    mode=0644
+    owner=root
+    group=root
+
+- name: Enable fail2ban
+  service: name=fail2ban enabled=yes

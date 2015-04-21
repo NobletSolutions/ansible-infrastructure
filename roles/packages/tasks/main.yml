@@ -1,0 +1,3 @@
+---
+- name: Install libselinux-pythin
+  yum: name=libselinux-python state=latest

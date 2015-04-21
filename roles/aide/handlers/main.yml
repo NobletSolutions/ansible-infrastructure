@@ -1,0 +1,5 @@
+---
+- name: Create aide
+  command: aide --init && mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+- name: update aide
+  command: aide -u >/dev/null && mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz

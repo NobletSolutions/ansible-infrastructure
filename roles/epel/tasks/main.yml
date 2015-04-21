@@ -1,13 +1,16 @@
 ---
-- name: See if EPEL is install
-  shell: "[ -f /etc/yum.repos.d/epel.repo ] && echo 'Found' || echo ''"
-  register: epel_installed
+- name: bootstrap epel-release install
+  copy: src=ansible-bootstrap-epel.repo
+        dest=/etc/yum.repos.d/
+        owner=root group=root mode=0644
 
-- name: get epel-repo rpm
-  yum: pkg=http://download.fedoraproject.org/pub/epel/6/{{ansible_architecture}}/epel-release-6-8.noarch.rpm state=installed 
-  when: ((ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') ansible_lsb.major_release|int == 6 and (not epel_installed.stdout))
+- name: epel-release install
+  yum: name=epel-release
+       enablerepo=ansible-bootstrap-epel
+       state=present
 
-- name: get epel-repo rpm
-  yum: pkg=http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm state=installed 
-  when: ((ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') ansible_lsb.major_release|int == 7 and (not epel_installed.stdout))
-
+- name: epel repository enable
+  ini_file: dest=/etc/yum.repos.d/epel.repo
+            section=epel
+            option=enabled
+            value=1

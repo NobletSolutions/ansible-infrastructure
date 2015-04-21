@@ -1,0 +1,4 @@
+[DEFAULT]
+bantime=86400
+destemail = nathanael@gnat.ca
+

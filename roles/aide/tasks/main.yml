@@ -1,0 +1,7 @@
+---
+- name: AIDE install
+  yum: name=aide state=latest
+
+- name: Install AIDE crontab
+  copy: src=crontab dest=/etc/cron.daily/aide mode=0750 owner=root group=root
+
