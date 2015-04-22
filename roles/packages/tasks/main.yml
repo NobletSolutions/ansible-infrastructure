@@ -1,3 +1,10 @@
 ---
-- name: Install libselinux-pythin
-  yum: name=libselinux-python state=latest
+- name: Install libselinux-python
+  yum: name=libselinux-python state=present
+  notify:
+    - update aide
+
+- name: Update all packages to latest version
+  when: ansible_os_family == "RedHat"
+  yum: name=* state=latest
+

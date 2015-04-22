@@ -4,3 +4,4 @@ dependencies:
   - { role: sshd }
   - { role: epel }
   - { role: aide }
+  - { role: fail2ban }

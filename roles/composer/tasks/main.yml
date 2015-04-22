@@ -1,5 +1,4 @@
 —-
-
 - name: PHP | PHPDev | Install composer
   command: curl -sS https://getcomposer.org/installer | /usr/bin/php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
 
@@ -8,4 +7,6 @@
 
 - name: PHP | PHPDev | Update composer
   command: /usr/local/bin/composer self-update
+  notify:
+    - update aide
 

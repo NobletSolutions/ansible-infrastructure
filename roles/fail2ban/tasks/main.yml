@@ -1,9 +1,12 @@
 ---
 - name: Install fail2ban, ipset
-  yum: name={{item}} state=latest
+  yum: name={{item}} state=present
   with_items:
-   - fail2ban
-   - ipset
+    - fail2ban
+    - ipset
+
+- name: Create jail.d
+  file: path=/etc/fail2ban/jail.d owner=root group=root mode=755 state=directory
 
 - name: Configure fail2ban
   copy: src="defaults" 
@@ -12,5 +15,17 @@
     owner=root
     group=root
 
+- name: Setup ipset service
+  copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0744
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
+
+- name: Install initial blacklist
+  copy: src=ipset.save dest=/etc/sysconfig/ipset owner=root group=root mode=0744
+
+- name: Enable ipset service
+  service: name=ipset enabled=yes
+  notify: restart ipset
+
 - name: Enable fail2ban
   service: name=fail2ban enabled=yes
+  notify: restart fail2ban

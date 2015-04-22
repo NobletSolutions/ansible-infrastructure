@@ -1,0 +1,17 @@
+[Unit]
+Description=ipset - IP set restore & save
+Documentation=man:ipset(8)
+Before=network.target firewalld.service iptables.service ip6tables.service fail2ban.service
+ConditionFileNotEmpty=/etc/sysconfig/ipset
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ipset -exist -file /etc/sysconfig/ipset restore
+ExecStop=/usr/sbin/ipset -file /etc/sysconfig/ipset save blacklist
+RemainAfterExit=yes
+StandardOutput=journal+console
+UMask=0177
+
+[Install]
+WantedBy=basic.target
+

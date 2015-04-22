@@ -1,7 +1,18 @@
 ---
 - name: AIDE install
-  yum: name=aide state=latest
+  yum: name=aide state=present
 
 - name: Install AIDE crontab
   copy: src=crontab dest=/etc/cron.daily/aide mode=0750 owner=root group=root
+
+- stat: path=/var/lib/aide/aide.db.gz
+  register: aidedb
+
+- name: Create Initial AIDE database
+  command: aide --init
+  when: aidedb.stat.exists == False
+
+- name: Move Initial AIDE database
+  command: mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+  when: aidedb.stat.exists == False
 
