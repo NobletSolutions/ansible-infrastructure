@@ -1,0 +1,8 @@
+---
+iptables_allowed_blacklist_ports: 80,443
+iptables_allowed_tcp_ports:
+  - "22"
+  - "80"
+  - "443"
+iptables_allowed_udp_ports: []
+iptables_additional_rules: []

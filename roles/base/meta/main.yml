@@ -5,3 +5,5 @@ dependencies:
   - { role: epel }
   - { role: aide }
   - { role: fail2ban }
+  - { role: iptables, when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version|int <= 6" }
+  - { role: firewalld, when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version|int == 7" }
