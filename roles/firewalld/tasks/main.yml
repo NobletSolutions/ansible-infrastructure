@@ -2,5 +2,12 @@
 - name: Ensure firewalld is installed
   yum: pkg=firewalld state=present
 
+- name: Add direct.xml
+  template: src=direct.xml.j2 dest=/etc/firewalld/direct.xml owner=root group=root mode=0744
+
+- name: Enable ssh access
+  firewalld: service=ssh immediate=yes permanent=yes state=enabled
+
 - name: Enable firewalld
   service: name=firewalld enabled=yes
+  notify: restart firewalld
