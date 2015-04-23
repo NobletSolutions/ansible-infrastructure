@@ -1,0 +1,13 @@
+---
+- name: Ensure httpd is installed
+  yum: name=httpd state=present
+
+- name: Enable NameVirtualHosts
+  copy: src=virtualhosts.conf dest="/etc/httpd/conf.d/virtualhosts.conf" owner=root group=root mode=644
+
+- include: ssl.yml
+  when: httpd_include_ssl == true
+
+- name: Ensure httpd is running
+  action: service name=httpd state=started
+

@@ -1,0 +1,9 @@
+---
+- name: Ensure mod_ssl is installed
+  yum: name=mod_ssl state=present
+
+- name: Configure SSL 
+  copy: src=ssl-el{{ansible_distribution_major_version}}.conf dest=/etc/httpd/conf.d/ssl.conf 
+
+- name: SSL Default options
+  copy: src=ssl-option.conf dest=/etc/httpd/conf.d/ssl-options
