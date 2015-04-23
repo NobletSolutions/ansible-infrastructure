@@ -1,3 +1,8 @@
 ---
 - name: update aide
-  command: aide -u >/dev/null && mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+  shell: aide -u > /dev/null
+  notify: move aide db
+  ignore_errors: yes
+
+- name: move aide db
+  command: mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz

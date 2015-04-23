@@ -1,0 +1,6 @@
+[webtatic-bootstrap]
+name = Ansible bootstrap for webtatic
+mirrorlist = http://mirror.webtatic.com/yum/el7/$basearch/mirrorlist
+failovermethod = priority
+enabled = 0
+gpgcheck = 0

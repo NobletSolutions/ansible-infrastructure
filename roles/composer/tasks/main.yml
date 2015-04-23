@@ -1,12 +1,18 @@
-—-
+---
+- name: Install git
+  yum: pkg=git state=present
+
 - name: PHP | PHPDev | Install composer
-  command: curl -sS https://getcomposer.org/installer | /usr/bin/php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
+  command: curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer.phar
+           creates=/usr/local/bin/composer.phar
 
 - name: Install composer wrapper
-  copy: dest=/usr/local/bin/composer owner=root group=owner mode=755 src=composer
+  copy: src=composer dest=/usr/local/bin/composer owner=root group=root mode=755
+
+- name: Ensure Permisions
+  file: path=/usr/local/bin/composer.phar owner=root group=root mode=755
 
 - name: PHP | PHPDev | Update composer
   command: /usr/local/bin/composer self-update
   notify:
     - update aide
-

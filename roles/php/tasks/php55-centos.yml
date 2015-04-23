@@ -1,0 +1,21 @@
+---
+- name: PHP55 -> bootstrap remi-release install
+  template: src=remi-bootstrap.repo.j2 dest=/etc/yum.repos.d/remi-bootstrap.repo owner=root group=root mode=0644
+
+- name: PHP55 -> remi-release install
+  yum: pkg=remi-release enablerepo=remi-bootstrap state=present disable_gpg_check=yes
+
+- name: PHP55 -> import gpg key
+  rpm_key: state=present key=/etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+
+- name: PHP55 -> remi repository enable
+  ini_file: dest=/etc/yum.repos.d/remi.repo section={{item}} option=enabled value=1
+  with_items:
+    - remi
+    - remi-php55
+
+- name: PHP55 -> disable other remi repository
+  ini_file: dest=/etc/yum.repos.d/remi.repo section={{item}} option=enabled value=0
+  with_items:
+    - remi-php56
+
