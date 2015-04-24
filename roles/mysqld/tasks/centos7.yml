@@ -1,0 +1,10 @@
+---
+- name: Install mariadb
+  yum: pkg={{item}} state=present
+  with_items:
+    - mariadb-server
+    - MySQL-python
+  when: ansible_distribution_major_version|int == 7
+
+- name: Ensure mariadb is started
+  service: name=mariadb enabled=yes state=started

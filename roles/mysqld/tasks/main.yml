@@ -1,0 +1,34 @@
+---
+- include: centos6.yml
+  when: ansible_distribution_major_version|int == 6
+  notify: 
+    - update aide
+
+- include: centos7.yml
+  when: ansible_distribution_major_version|int == 7
+  notify: 
+    - update aide
+
+- name: Update root password
+  mysql_user: name=root host=localhost password="{{mysql_root_password}}" login_user=root login_password="{{mysql_old_root_password}}"
+  when: mysql_old_root_password != False
+
+# Need to do this for idempotency, see
+# http://ansible.cc/docs/modules.html#mysql-user
+- name: set mysql root password for all root accounts
+  mysql_user: name=root host=localhost password="{{mysql_root_password}}"
+  ignore_errors: yes
+
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host="{{item}}" password="{{mysql_root_password}}" login_user=root login_password="{{mysql_root_password}}"
+  with_items:
+    - "{{ansible_hostname}}"
+    - localhost.localdomain
+    - 127.0.0.1
+    - ::1
+
+- name: ensure anonymous users are not in the database
+  mysql_user: name='' state=absent login_user=root login_password="{{mysql_root_password}}"
+
+- name: remove the test database
+  mysql_db: name=test state=absent login_user=root login_password="{{mysql_root_password}}"
