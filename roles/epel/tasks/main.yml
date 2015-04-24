@@ -1,18 +1,12 @@
 ---
 - name: bootstrap epel-release install
-  copy: src=ansible-bootstrap-epel.repo
-        dest=/etc/yum.repos.d/
-        owner=root group=root mode=0644
+  copy: src=ansible-bootstrap-epel.repo dest=/etc/yum.repos.d/ owner=root group=root mode=0644
 
 - name: epel-release install
-  yum: name=epel-release
-       enablerepo=ansible-bootstrap-epel
-       state=present
+  yum: name=epel-release enablerepo=ansible-bootstrap-epel state=present
   notify:
    - update aide
 
 - name: epel repository enable
-  ini_file: dest=/etc/yum.repos.d/epel.repo
-            section=epel
-            option=enabled
-            value=1
+  ini_file: dest=/etc/yum.repos.d/epel.repo section=epel option=enabled value=1
+
