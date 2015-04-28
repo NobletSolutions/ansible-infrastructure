@@ -1,8 +1,13 @@
 ---
 - name: update aide
-  shell: aide -u > /dev/null
+  shell: aide -u >/dev/null
   notify: move aide db
-  ignore_errors: yes
+  register: update_aide
+  failed_when: update_aide.rc not in [0,1,2,4,5,3,7]
 
 - name: move aide db
+  command: mv -f /var/lib/aide/aide.db.gz /var/lib/aide/aide.db.{{ansible_date_time.date}}.gz
+  notify: move new aide db
+
+- name: move new aide db
   command: mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz

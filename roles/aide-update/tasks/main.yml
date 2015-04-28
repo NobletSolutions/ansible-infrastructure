@@ -1,0 +1,4 @@
+---
+- name: Notify Aide
+  file: path=/root/aide state=touch
+  notify: update aide
