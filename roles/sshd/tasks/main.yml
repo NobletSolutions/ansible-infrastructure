@@ -3,6 +3,7 @@
   authorized_key: user=root state=present key="{{ item }}" manage_dir=yes
   with_file:
     - gnat
+    - gnat-mobile
 
 - name: Reconfigure SSH to only allow access using key-based authentication
   lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PasswordAuthentication" line="PasswordAuthentication no"
