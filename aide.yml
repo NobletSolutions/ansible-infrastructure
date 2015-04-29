@@ -1,0 +1,5 @@
+---
+- hosts: aide-servers
+  user: root
+  roles:
+    - aide-update
