@@ -1,9 +1,15 @@
 ---
 - name: Ensure mod_ssl is installed
   yum: name=mod_ssl state=present
+  with_items:
+    - mod_ssl
+    - x509watch
 
 - name: Configure SSL 
   copy: src=ssl-el{{ansible_distribution_major_version}}.conf dest=/etc/httpd/conf.d/ssl.conf 
 
 - name: SSL Default options
   copy: src=ssl-option.conf dest=/etc/httpd/conf.d/ssl-options
+
+- name: Configure x509watch
+  copy: src=x509watch dest=/etc/sysconfig/x509watch owner=root group=root mode=644

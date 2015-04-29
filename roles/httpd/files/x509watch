@@ -1,0 +1,6 @@
+# Configuration file for the x509watch cronjob
+
+# Options and parameters to be passed to x509watch. See "x509watch --help"
+# for any further details. The default of this variable is empty.
+OPTIONS="-d /etc/pki/tls"
+
