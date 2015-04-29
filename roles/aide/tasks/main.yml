@@ -5,6 +5,9 @@
 - name: Install AIDE crontab
   copy: src=crontab dest=/etc/cron.daily/aide mode=0750 owner=root group=root
 
+- name: Configure AIDE
+  template: src=aide.conf.j2 dest=/etc/aide.conf owner=root group=root mode=600
+
 - stat: path=/var/lib/aide/aide.db.gz
   register: aidedb
 
