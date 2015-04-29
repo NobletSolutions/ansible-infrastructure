@@ -1,0 +1,6 @@
+{% for exclude in backup_server_exclude %}
+- {{ exclude }}
+{% endfor %}
+{% for include in backup_server_include %}
++ {{ include }}
+{% endfor %}

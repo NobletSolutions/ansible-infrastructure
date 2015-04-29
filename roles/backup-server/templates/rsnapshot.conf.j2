@@ -1,0 +1,16 @@
+include_conf	/etc/rsnapshot-common.conf
+
+snapshot_root	/srv/rsnapshots/{{item}}/
+
+interval	hourly	{{backup_server_hourly}}
+interval	daily	{{backup_server_daily}}
+interval	weekly	{{backup_server_weekly}}
+interval	monthly	{{backup_server_monthly}}
+
+logfile	/srv/rsnapshots/{{item}}/rsnapshot.log
+lockfile	/srv/rsnapshots/{{item}}/rsnapshot.pid
+
+exclude_file	/srv/rsnapshots/{{item}}/exclude_file.txt
+
+#this would back *everything* up
+backup	{{backup_server_target_user}}@{{item}}:/	./

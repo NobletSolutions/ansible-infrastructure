@@ -1,0 +1,4 @@
+---
+backup_target_user: backup
+backup_target_master_host: False
+backup_target_master_host_user: False

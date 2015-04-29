@@ -1,0 +1,32 @@
+---
+- name: Ensure rsnapshot
+  yum: pkg={{item}} state=present
+  with_items:
+    - rsnapshot
+    - rsync
+
+- name: Add rsnapshot-common config
+  template: src=common.j2 dest=/etc/rsnapshot-common.conf owner=root group=root mode=644
+
+- name: Setup backup target directory
+  file: path=/srv/rsnapshots state=directory owner=root group=root mode=700
+
+- name: Create root SSH public key
+  user: name=root generate_ssh_key=yes
+
+- name: create main directory structure
+  file: path=/srv/rsnapshots/{{item}}/.sync recurse=yes state=directory
+  with_items: backup_server_hosts
+
+- name: create config
+  template: src=rsnapshot.conf.j2 dest=/srv/rsnapshots/{{item}}/rsnapshot.conf
+  with_items: backup_server_hosts
+
+- name: create exclude
+  template: src=exclude.j2 dest=/srv/rsnapshots/{{item}}/exclude_file.txt
+  with_items: backup_server_hosts
+
+- name: create crontab
+  template: src=crontab.j2 dest=/etc/cron.d/{{item}}-crontab owner=root group=root mode=644
+  with_items: backup_server_hosts
+

@@ -1,0 +1,5 @@
+#m h dom mon dow
+00 * * * *  rsnapshot -c /srv/rsnapshots/{{item}}/rsnapshot.conf sync && rsnapshot -c /srv/rsnapshots/{{item}}/rsnapshot.conf hourly
+00 04 * * * rsnapshot -c /srv/rsnapshots/{{item}}/rsnapshot.conf daily
+00 02 * * 0 rsnapshot -c /srv/rsnapshots/{{item}}/rsnapshot.conf weekly
+00 00 1 * * rsnapshot -c /srv/rsnapshots/{{item}}/rsnapshot.conf monthly

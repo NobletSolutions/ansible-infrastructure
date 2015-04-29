@@ -1,0 +1,32 @@
+---
+- name: Error if we haven't configured backup_master_host
+  fail: msg="the command failed"
+  when: backup_target_master_host == False or backup_target_master_host_user == False
+
+- name: Install required packages
+  yum:  pkg={{item}} state=installed
+  with_items:
+    - rsync
+    - sudo
+
+- name: Install the 'rsync-wrapper.sh' script, called by the master
+  copy: src=rsync-wrapper.sh dest=/usr/local/bin/rsync-wrapper.sh owner=root group=root mode=0755
+
+- name: Add backup system user
+  user: name={{ backup_target_user }} shell=/bin/bash update_password=on_create
+
+- name: Sudo configuration for the backup system user
+  template: src=sudo.j2 dest=/etc/sudoers.d/{{ backup_target_user }} owner=root group=root mode=0440
+
+- name: Retrieve the SSH public key on the rsnapshot master
+  delegate_to: "{{ backup_target_master_host }}"
+  remote_user: "{{ backup_target_master_host_user }}"
+  command: "cat $HOME/.ssh/id_rsa.pub"
+  register: backup_target_master_ssh_pubkey
+  changed_when: False
+  always_run: True
+
+- name: Set the SSH public key for the backup system user
+  authorized_key: user={{ backup_target_user }} key="{{ backup_target_master_ssh_pubkey.stdout }}"
+  when: backup_target_master_ssh_pubkey
+
