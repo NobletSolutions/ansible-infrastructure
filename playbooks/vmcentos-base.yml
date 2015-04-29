@@ -1,5 +1,0 @@
----
-- hosts: vmcentos
-  user: root
-  roles:
-    - base
