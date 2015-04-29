@@ -29,4 +29,5 @@
 - name: Set the SSH public key for the backup system user
   authorized_key: user={{ backup_target_user }} key="{{ backup_target_master_ssh_pubkey.stdout }}"
   when: backup_target_master_ssh_pubkey
-
+  notify:
+    - update aide

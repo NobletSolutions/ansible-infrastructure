@@ -29,4 +29,5 @@
 - name: create crontab
   template: src=crontab.j2 dest=/etc/cron.d/{{item}}-crontab owner=root group=root mode=644
   with_items: backup_server_hosts
-
+  notify:
+    - update aide
