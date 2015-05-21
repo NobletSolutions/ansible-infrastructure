@@ -1,4 +1,4 @@
 [DEFAULT]
 bantime=86400
 destemail = nathanael@gnat.ca
-
+ignoreip = 127.0.0.1/8 24.72.108.82 70.72.63.221
