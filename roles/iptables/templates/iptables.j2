@@ -12,7 +12,6 @@
 -A RH-Firewall-1-INPUT -p icmp -m icmp --icmp-type any -j ACCEPT
 -A RH-Firewall-1-INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-
 {% for port in iptables_allowed_tcp_ports %}
 -A INPUT -p tcp -m tcp --dport {{ port }} -j ACCEPT
 {% endfor %}
