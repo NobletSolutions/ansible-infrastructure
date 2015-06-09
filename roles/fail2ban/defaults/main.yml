@@ -1,4 +1,4 @@
 ---
 fail2ban_notification_dest: root
 fail2ban_notification_sender: root
-fail2ban_ignore_ips: 24.72.108.82 70.72.63.221
+fail2ban_ignore_ips: 

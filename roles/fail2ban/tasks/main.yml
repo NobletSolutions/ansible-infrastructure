@@ -16,7 +16,7 @@
     group=root
 
 - name: Insert ipset rules after blacklist
-  copy: src="ipset-proto4.conf" dest="/etc/fail2ban/action.d/iptables-ipset-proto4.conf" mode=0644 owner=root group=root
+  copy: src="ipset-proto6.conf" dest="/etc/fail2ban/action.d/iptables-ipset-proto6.conf" mode=0644 owner=root group=root
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
 
 - name: Insert ipset rules after blacklist
@@ -35,7 +35,6 @@
   template: src="ssh-ipset7.conf.j2"  dest="/etc/fail2ban/jail.d/ssh-ipset.conf" mode=0644 owner=root group=root
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
 
-
 - name: Test VSFTP Existence
   stat: path=/etc/vsftpd get_md5=no
   register: fail2ban_vsftpd
@@ -43,7 +42,6 @@
 - name: Configure VSFTP-ipset Ban
   template: src="vsftp-ipset.conf.j2"  dest="/etc/fail2ban/jail.d/vsftp-ipset.conf" mode=0644 owner=root group=root
   when: fail2ban_vsftpd.stat.exists
-
 
 - name: Setup ipset service
   copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0744

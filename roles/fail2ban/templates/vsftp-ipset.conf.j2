@@ -1,7 +1,7 @@
-[vsftpd-ipset4]
-enabled  = false
+[vsftpd-ipset]
+enabled  = true
 filter   = vsftpd
-action   = iptables-ipset-proto4[name=VSFTPD, port=ftp, protocol=tcp]
+action   = iptables-ipset-proto6[name=VSFTPD, port=ftp, protocol=tcp]
            sendmail-whois[name=VSFTPD,dest={{fail2ban_notification_dest}}, sender={{fail2ban_notification_sender}}, sendername="Fail2Ban"]
 logpath  = /var/log/vsftpd.log
 maxretry = 2
