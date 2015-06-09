@@ -1,8 +1,5 @@
-<!-- /etc/firewalld/direct.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <direct>
-   <chain ipv="ipv4" table="raw" chain="PREROUTING_blacklist"/>
-
-   <passthrough ipv="ipv4">-t raw -A PREROUTING_blacklist -m limit --limit 3/min -j LOG --log-prefix BLACKLIST_DROP: --log-level 6</passthrough>
-   <passthrough ipv="ipv4">-t raw -A PREROUTING_blacklist -j DROP</passthrough>
-   <passthrough ipv="ipv4">-t raw -A PREROUTING -m multiport ! --dports {{firewalld_allowed_blacklist_ports}} -m set --match-set blacklist src -j PREROUTING_blacklist</passthrough>
+  <rule priority="0" table="filter" ipv="ipv4" chain="INPUT_direct">-m multiport -p tcp '!' --dports 80,443 -m set --match-set blacklist src -j DROP</rule>
+  <rule priority="1" table="filter" ipv="ipv4" chain="INPUT_direct">-p udp -m set --match-set blacklist src -j DROP</rule>
 </direct>
