@@ -1,4 +1,20 @@
+vmcentos7
+vmcentos6
+vmcentos7-clone
+vmcentos6-clone
+
+[aide-servers]
+vmcentos7-clone
+vmcentos6-clone
 
 [vmcentos]
 vmcentos7
 vmcentos6
+
+[vmcentos-clone]
+vmcentos7-clone
+vmcentos6-clone
+
+[servers]
+vmcentos7-clone
+vmcentos6-clone
