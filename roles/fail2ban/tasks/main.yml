@@ -16,11 +16,11 @@
     group=root
 
 - name: Insert ipset rules after blacklist
-  copy: src="ipset-proto6.conf" dest="/etc/fail2ban/action.d/iptables-ipset-proto6.conf" mode=0644 owner=root group=root
+  template: src="ipset-proto6.conf.j2" dest="/etc/fail2ban/action.d/iptables-ipset-proto6.conf" mode=0644 owner=root group=root
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
 
 - name: Insert ipset rules after blacklist
-  copy: src="firewallcmd-ipset.conf" dest="/etc/fail2ban/action.d/firewallcmd-ipset.conf" mode=0644 owner=root group=root
+  template: src="firewallcmd-ipset.conf.j2" dest="/etc/fail2ban/action.d/firewallcmd-ipset.conf" mode=0644 owner=root group=root
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
 
 
