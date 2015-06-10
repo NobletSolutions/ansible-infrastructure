@@ -4,6 +4,7 @@
   with_items:
     - fail2ban
     - ipset
+    - jwhois
 
 - name: Create jail.d
   file: path=/etc/fail2ban/jail.d owner=root group=root mode=755 state=directory
