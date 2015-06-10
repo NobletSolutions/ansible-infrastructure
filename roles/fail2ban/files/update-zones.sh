@@ -7,7 +7,7 @@ do
   wget http://www.ipdeny.com/ipblocks/data/aggregated/${country}-aggregated.zone
   for ip in `cat ${country}-aggregated.zone`;
   do
-     echo "add blacklist $ip" >> ../ipset.save;
+     echo "add blacklist $ip" >> ./ipset.save;
   done;
   rm -f ${country}-aggregated.zone
 done
