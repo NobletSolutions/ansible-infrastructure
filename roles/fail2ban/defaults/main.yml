@@ -1,4 +1,6 @@
 ---
 fail2ban_notification_dest: root
 fail2ban_notification_sender: root
+fail2ban_bantime: 86400
+fail2ban_destemail: nathanael@gnat.ca
 fail2ban_ignore_ips: 

@@ -42,7 +42,7 @@ chain = INPUT_direct
 # Notes:  specifies the bantime in seconds (handled internally rather than by fail2ban)
 # Values:  [ NUM ]  Default: 600
 
-bantime = 86400
+bantime = {{fail2ban_bantime}}
 blocktype = DROP
 
 # DEV NOTES:
