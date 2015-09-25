@@ -3,3 +3,8 @@ php_timezone: America/Edmonton
 php_error_reporting: E_ALL & ~E_DEPRECATED & ~E_STRICT
 php_display_errors: Off
 php_version: 5.5
+php_gc_divisor: 100
+php_gc_maxlifetime: 900
+php_gc_probability: 1
+php_post_max_size: 30M
+php_upload_max: 10M

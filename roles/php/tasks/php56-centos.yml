@@ -19,3 +19,6 @@
   with_items:
     - remi-php55
 
+- name: PHP56 - Uninstall PECL opcache
+  yum: pkg=php-pecl-opcache state=absent
+

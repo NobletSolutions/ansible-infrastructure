@@ -25,14 +25,22 @@
   notify:
     - update aide
 
+- name: Install opcahe 
+  yum: pkg=php-opcache state=present
+  when: php_version != 5.4
+
+- name: Install PECL opcache
+  yum: pkg=php-pecl-opcache state=present
+  when: php_version == 5.4
+
 - name: PHP datetime
   ini_file: dest=/etc/php.ini section=Date option=date.timezone value="{{php_timezone}}" mode=0644
 
 - name: PHP - Post Max Size
-  ini_file: dest=/etc/php.ini section=PHP option=post_max_size value=30M mode=0644
+  ini_file: dest=/etc/php.ini section=PHP option=post_max_size value={{php_post_max_size}} mode=0644
 
 - name: PHP - Upload File Size
-  ini_file: dest=/etc/php.ini section=PHP option=upload_max_filesize value=10M mode=0644
+  ini_file: dest=/etc/php.ini section=PHP option=upload_max_filesize value={{php_upload_max}} mode=0644
 
 - name: PHP - Error Reporting
   ini_file: dest=/etc/php.ini section=PHP option=error_reporting value="{{php_error_reporting}}" mode=0644
@@ -42,4 +50,13 @@
 
 - name: PHP - Display Error
   ini_file: dest=/etc/php.ini section=PHP option=display_error value="{{php_display_errors}}" mode=0644
+
+- name: PHP - Session Divisor
+  ini_file: dest=/etc/php.ini section=Session option=session.gc_divisor value="{{php_gc_divisor}}" mode=0644
+
+- name: PHP - Session Probability
+  ini_file: dest=/etc/php.ini section=Session option=session.gc_divisor value="{{php_gc_probability}}" mode=0644
+
+- name: PHP - Session Max Lifetime
+  ini_file: dest=/etc/php.ini section=Session option=session.gc_max value="{{php_gc_maxlifetime}}" mode=0644
 
