@@ -20,3 +20,6 @@ vmcentos6-clone
 [servers]
 vmcentos7-clone
 vmcentos6-clone
+
+[elastic-servers]
+vagrant

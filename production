@@ -18,3 +18,6 @@ server1.aamclientcare.ca
 server2.aamclientcare.ca
 cobalt.noblet.ca
 beryllium.noblet.ca
+
+[elastic-servers]
+cobalt.noblet.ca
