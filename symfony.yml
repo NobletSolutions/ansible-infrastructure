@@ -2,4 +2,5 @@
 - hosts: '{{target}}'
   user: root
   roles:
-    - aide-update
+    - base
+    - symfony
