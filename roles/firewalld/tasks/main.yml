@@ -2,6 +2,9 @@
 - name: Ensure firewalld is installed
   yum: pkg=firewalld state=present
 
+- name: Ensure firewalld is enabled
+  service: name=firewalld state=started enabled=yes
+
 - name: Add direct.xml
   template: src=direct.xml.j2 dest=/etc/firewalld/direct.xml owner=root group=root mode=0744
 
