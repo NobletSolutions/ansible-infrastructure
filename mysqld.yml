@@ -1,5 +1,6 @@
 ---
-- hosts: '{{ target }}'
+- hosts: '{{target}}'
   user: root
   roles:
     - base
+    - mysqld
