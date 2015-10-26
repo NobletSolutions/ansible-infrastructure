@@ -60,3 +60,5 @@
 - name: PHP - Session Max Lifetime
   ini_file: dest=/etc/php.ini section=Session option=session.gc_max value="{{php_gc_maxlifetime}}" mode=0644
 
+- name: PHP - XLSX/DOCX magic file
+  copy: src=magic dest=/etc/magic owner=root group=root mode=0644
