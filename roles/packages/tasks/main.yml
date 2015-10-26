@@ -2,8 +2,15 @@
 - name: Install libselinux-python
   yum: name=libselinux-python state=present
 
+- name: Install haveged to ensure we have good entropy
+  yum: name=haveged state=present
+
+- name: Enable haveged service
+  service: name=haveged state=running enabled=yes
+
 - name: Update all packages to latest version
   yum: name=* state=latest
   when: ansible_os_family == "RedHat"
   notify:
     - update aide
+
