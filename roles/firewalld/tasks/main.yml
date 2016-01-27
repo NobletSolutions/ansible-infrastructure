@@ -11,6 +11,10 @@
 - name: Enable ssh access
   firewalld: service=ssh immediate=yes permanent=yes state=enabled
 
+- name: Enable default services
+  firewalld: service={{ item }} immediate=yes permanent=yes state=enabled
+  with_items: firewalld_allowed_services
+
 - name: Enable firewalld
   service: name=firewalld enabled=yes
   notify: restart firewalld
