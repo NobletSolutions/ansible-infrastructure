@@ -8,11 +8,11 @@
 - include: ssl.yml
   when: httpd_include_ssl == true
 
-- name: Add apache .ssh and .composer directories
-  file: dest="~apache/{{item}}" owner=apache group=apache mode=700
-  with_items:
-    - .ssh
-    - .composer
+#- name: Add apache .ssh and .composer directories
+#  file: dest="~apache/{{item}}" owner=apache group=apache mode=700
+#  with_items:
+#    - .ssh
+#    - .composer
 
 - name: Ensure httpd is running
   action: service name=httpd state=started

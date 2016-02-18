@@ -1,0 +1,8 @@
+- name: Install htmltopdf.sh
+  copy: src=htmltopdf.sh dest=/usr/local/bin/htmltopdf.sh mode=0755
+
+- name: Install wkhtmltopdf + deps
+  yum: pkg={{item}} state=present
+  with_items:
+    - wkhtmltopdf
+    - xorg-x11-server-Xvfb
