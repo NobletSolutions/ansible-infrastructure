@@ -4,6 +4,7 @@
 
 - name: Enable NameVirtualHosts
   copy: src=virtualhosts.conf dest="/etc/httpd/conf.d/virtualhosts.conf" owner=root group=root mode=644
+  when: ansible_distribution_major_version|int == 6
 
 - include: ssl.yml
   when: httpd_include_ssl == true
