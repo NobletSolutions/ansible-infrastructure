@@ -1,5 +1,5 @@
 ---
-- hosts: servers
+- hosts: '{{target}}'
   user: root
   roles:
     - fail2ban

@@ -1,0 +1,5 @@
+[DEFAULT]
+bantime= {{fail2ban_bantime}}
+banaction=iptables-ipset-proto6-allports
+destemail = {{fail2ban_destemail}}
+ignoreip = 127.0.0.1/8 {{fail2ban_ignore_ips}}
