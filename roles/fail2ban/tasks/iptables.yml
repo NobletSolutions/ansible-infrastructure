@@ -1,0 +1,7 @@
+---
+- name: Configure fail2ban - iptables
+  template: src="defaults-iptables.j2" dest="/etc/fail2ban/jail.d/00-defaults.conf" mode=0644 owner=root group=root
+
+- name: Insert ipset rules after blacklist
+  template: src="ipset-proto.conf.j2" dest="/etc/fail2ban/action.d/iptables-ipset-proto6-allports.conf" mode=0644 owner=root group=root
+
