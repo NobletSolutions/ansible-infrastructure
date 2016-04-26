@@ -14,22 +14,15 @@ cobalt.noblet.ca
 server1.aamclientcare.ca
 server2.aamclientcare.ca
 beryllium.noblet.ca
-rhel7vm.aamclientcare.ca
 
 [aide-servers]
 platinum.noblet.ca
 server1.aamclientcare.ca
 server2.aamclientcare.ca
-rhel7vm.aamclientcare.ca
 cobalt.noblet.ca
 beryllium.noblet.ca
-cweb.carms.noblet.ca
 rif.tndg.ca
 
 [elastic-servers]
 cobalt.noblet.ca
 
-[carms]
-cdb.carms.noblet.ca
-cfile.carms.noblet.ca
-cweb.carms.noblet.ca

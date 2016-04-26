@@ -13,8 +13,3 @@
   notify:
     - update aide
 
-- include: centos6.yml
-  when: ansible_distribution_major_version|int == 6
-
-- include: centos7.yml
-  when: ansible_distribution_major_version|int == 7
