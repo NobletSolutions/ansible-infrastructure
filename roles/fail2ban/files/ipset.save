@@ -1,4 +1,4 @@
-
+create blacklist hash:net family inet hashsize 8192 maxelem 65536
 add blacklist 37.131.0.0/17
 add blacklist 46.23.16.0/20
 add blacklist 46.42.64.0/18
