@@ -7,7 +7,7 @@
     - jwhois
 
 - name: Check if firewalld is installed
-  stat: path=/etc/firewalld get_md5=no mime=no
+  stat: path=/etc/firewalld get_md5=no
   register: fail2ban_firewalld
 
 - name: Create jail.d
@@ -28,7 +28,7 @@
   copy: src="ssh-ipset.conf"  dest="/etc/fail2ban/jail.d/ssh-ipset.conf" mode=0644 owner=root group=root
 
 - name: Test VSFTP Existence
-  stat: path=/etc/vsftpd get_md5=no mime=no
+  stat: path=/etc/vsftpd get_md5=no
   register: fail2ban_vsftpd
 
 - name: Configure VSFTP-ipset Ban
@@ -36,7 +36,7 @@
   when: fail2ban_vsftpd.stat.exists
 
 - name: Test Cyrus-Imap Existence
-  stat: path=/etc/cyrus.conf get_md5=no mime=no
+  stat: path=/etc/cyrus.conf get_md5=no 
   register: fail2ban_cyrus
 
 - name: Configure IMAP-ipset Ban
