@@ -3,13 +3,16 @@
   when: php_version == 5.4 and ansible_distribution_major_version|int == 6
 
 - include: php55-centos.yml
-  when: php_version == 5.5
+  when: php_version == 5.5 and ansible_distribution_major_version|int < 23
 
 - include: php56-centos.yml
-  when: php_version == 5.6
+  when: php_version == 5.6 and ansible_distribution_major_version|int < 23
+
+- include: php70-centos.yml
+  when: php_version == 7.0 and ansible_distribution_major_version|int < 23
 
 - name: Install php
-  yum: pkg={{item}} state=present
+  yum: pkg={{item}} state=latest
   with_items:
     - php
     - php-gd
@@ -21,6 +24,7 @@
     - php-xml
     - php-mysql
     - php-mbstring
+    - php-bcmath
     - php-pecl-imagick
   notify:
     - update aide
