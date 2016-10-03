@@ -3,8 +3,7 @@
   yum: pkg=git state=present
 
 - name: PHP | PHPDev | Install composer
-  command: curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer.phar
-           creates=/usr/local/bin/composer.phar
+  get_url: url=https://getcomposer.org/composer.phar dest=/usr/local/bin/composer.phar
 
 - name: Install composer wrapper
   copy: src=composer dest=/usr/local/bin/composer owner=root group=root mode=755
