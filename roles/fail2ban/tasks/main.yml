@@ -44,7 +44,7 @@
   when: fail2ban_cyrus.stat.exists
 
 - name: Setup ipset service
-  copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0744
+  copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0444
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
 
 - name: Install initial blacklist
