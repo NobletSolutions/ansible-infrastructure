@@ -1,5 +1,5 @@
 ---
-- name: Ensure rsnapshot
+- name: Install required packages
   yum: pkg={{item}} state=present
   with_items:
     - rsnapshot
@@ -14,20 +14,20 @@
 - name: Create root SSH public key
   user: name=root generate_ssh_key=yes
 
-- name: create main directory structure
-  file: path="/srv/rsnapshots/{{item}}/.sync" recurse=yes state=directory
-  with_items: '{{backup_server_target_hosts}}'
+- name: Create main directory structure
+  file: path="/srv/rsnapshots/{{item.name}}/.sync" recurse=yes state=directory
+  with_items: '{{backup_server_configs}}'
 
-- name: create config
-  template: src=rsnapshot.conf.j2 dest="/srv/rsnapshots/{{item}}/rsnapshot.conf"
-  with_items: '{{backup_server_target_hosts}}'
+- name: Create config
+  template: src=rsnapshot.conf.j2 dest="/srv/rsnapshots/{{item.name}}/rsnapshot.conf"
+  with_items: '{{backup_server_configs}}'
 
-- name: create exclude
-  template: src=exclude.j2 dest="/srv/rsnapshots/{{item}}/exclude_file.txt"
-  with_items: '{{backup_server_target_hosts}}'
+- name: Add exclude_file.txt
+  template: src=exclude.j2 dest="/srv/rsnapshots/{{item.name}}/exclude_file.txt"
+  with_items: '{{backup_server_configs}}'
 
-- name: create crontab
-  template: src=crontab.j2 dest="/etc/cron.d/{{item}}-crontab" owner=root group=root mode=644
-  with_items: '{{backup_server_target_hosts}}'
+- name: Configure crontab
+  template: src=crontab.j2 dest="/etc/cron.d/{{item.name}}-crontab" owner=root group=root mode=644
+  with_items: '{{backup_server_configs}}'
   notify:
     - update aide

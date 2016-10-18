@@ -4,7 +4,6 @@ backup_server_hourly: 24
 backup_server_daily: 7
 backup_server_weekly: 5
 backup_server_monthly: 3
-backup_server_target_hosts: []
 backup_server_include:
   - /*
 backup_server_exclude:
@@ -18,7 +17,19 @@ backup_server_exclude:
   - /run
   - /srv/rsnapshot
 
-backup_server_configs:
-  - name: LOCALHOST
-    points: []
+#backup_server_configs:
+#  - name: server1.aamclientcare.ca
+#    points:
+#      - backup@server1.aamclientcare.ca:/var/www/vhosts/
+#      - backup@server1.aamclientcare.ca:/srv/backup/mysql
+#      - backup@server1.aamclientcare.ca:/etc/
+#      - backup@server1.aamclientcare.ca:/usr/local/bin
+#      - backup@server1.aamclientcare.ca:/usr/local/sbin
+#  - name: localhost
+#    points:
+#      - /var/www/
+#      - /srv/backup/mysql/
+#      - /etc/
+#      - /usr/local/bin/
+#      - /user/local/sbin/
 
