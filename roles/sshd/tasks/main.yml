@@ -1,10 +1,10 @@
 ---
 - name: Set up authorized_keys for the root user
-  authorized_key: user=root state=present key="{{ item }}" manage_dir=yes
-  with_file: sshd_public_keys
+  authorized_key: user=root state=present key='{{ item }}' manage_dir=yes
+  with_file: '{{sshd_public_keys}}'
 
 - name: Remove vagrant key
-  authorized_key: user=root state=absent key="{{ item }}" manage_dir=yes
+  authorized_key: user=root state=absent key='{{ item }}' manage_dir=yes
   with_file:
     - vagrant
 
