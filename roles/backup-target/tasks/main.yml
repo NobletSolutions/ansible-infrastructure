@@ -9,6 +9,9 @@
     - rsync
     - sudo
 
+- name: Ensure requiretty is off
+  lineinfile: dest=/etc/sudoers state=absent regexp="^Defaults    requiretty"
+
 - name: Install the 'rsync-wrapper.sh' script, called by the master
   copy: src=rsync-wrapper.sh dest=/usr/local/bin/rsync-wrapper.sh owner=root group=root mode=0755
 
@@ -18,7 +21,7 @@
 - name: Sudo configuration for the backup system user
   template: src=sudo.j2 dest=/etc/sudoers.d/{{ backup_target_user }} owner=root group=root mode=0440
 
-- name: Retrieve the SSH public key on the rsnapshot master
+- name: Retrieve the SSH public key on the rsnapshot backup master host
   delegate_to: "{{ backup_target_master_host }}"
   remote_user: "{{ backup_target_master_host_user }}"
   command: "cat $HOME/.ssh/id_rsa.pub"

@@ -12,5 +12,10 @@ lockfile	/srv/rsnapshots/{{item}}/rsnapshot.pid
 
 exclude_file	/srv/rsnapshots/{{item}}/exclude_file.txt
 
-#this would back *everything* up
-backup	{{backup_server_target_user}}@{{item}}:/	./
+{% for backup in backup_server_configs %}
+# {{ backup.name }}
+{% for args in backup.points %}
+backup	{{args}}	./
+{% endfor %}
+
+{% endfor %}

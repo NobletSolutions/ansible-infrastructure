@@ -62,11 +62,11 @@ interval	monthly	{{backup_server_monthly}}
 # 4     Extra Verbose   Show extra verbose information
 # 5     Debug mode      Everything
 #
-verbose		3
+verbose		2
 
 # Same as "verbose" above, but controls the amount of data sent to the
 # logfile, if one is being used. The default is 3.
-loglevel	3
+loglevel	2
 
 # If you enable this, data will be written to the file you specify. The
 # amount of data written is controlled by the "loglevel" parameter.
@@ -81,7 +81,7 @@ logfile	/var/log/rsnapshot
 # Default rsync args. All rsync commands have at least these options set.
 #
 rsync_short_args	-a
-#rsync_long_args	--delete --numeric-ids --relative --delete-excluded
+rsync_long_args	--delete --numeric-ids --relative --delete-excluded --rsync-path=/usr/local/bin/rsync-wrapper.sh
 
 # When sync_first is enabled, it changes the default behaviour of rsnapshot.
 # Normally, when rsnapshot is called with its lowest interval

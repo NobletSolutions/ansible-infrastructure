@@ -15,19 +15,19 @@
   user: name=root generate_ssh_key=yes
 
 - name: create main directory structure
-  file: path=/srv/rsnapshots/{{item}}/.sync recurse=yes state=directory
-  with_items: backup_server_hosts
+  file: path="/srv/rsnapshots/{{item}}/.sync" recurse=yes state=directory
+  with_items: '{{backup_server_target_hosts}}'
 
 - name: create config
-  template: src=rsnapshot.conf.j2 dest=/srv/rsnapshots/{{item}}/rsnapshot.conf
-  with_items: backup_server_hosts
+  template: src=rsnapshot.conf.j2 dest="/srv/rsnapshots/{{item}}/rsnapshot.conf"
+  with_items: '{{backup_server_target_hosts}}'
 
 - name: create exclude
-  template: src=exclude.j2 dest=/srv/rsnapshots/{{item}}/exclude_file.txt
-  with_items: backup_server_hosts
+  template: src=exclude.j2 dest="/srv/rsnapshots/{{item}}/exclude_file.txt"
+  with_items: '{{backup_server_target_hosts}}'
 
 - name: create crontab
-  template: src=crontab.j2 dest=/etc/cron.d/{{item}}-crontab owner=root group=root mode=644
-  with_items: backup_server_hosts
+  template: src=crontab.j2 dest="/etc/cron.d/{{item}}-crontab" owner=root group=root mode=644
+  with_items: '{{backup_server_target_hosts}}'
   notify:
     - update aide

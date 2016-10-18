@@ -1,11 +1,10 @@
 ---
-backup_target_server: False
 backup_server_target_user: root
 backup_server_hourly: 24
 backup_server_daily: 7
 backup_server_weekly: 5
 backup_server_monthly: 3
-backup_server_hosts: []
+backup_server_target_hosts: []
 backup_server_include:
   - /*
 backup_server_exclude:
@@ -18,3 +17,8 @@ backup_server_exclude:
   - /var/run
   - /run
   - /srv/rsnapshot
+
+backup_server_configs:
+  - name: LOCALHOST
+    points: []
+
