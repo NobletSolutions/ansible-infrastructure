@@ -1,0 +1,14 @@
+---
+symfony_provision_server: apache
+symfony_provision_server_user: apache
+symfony_provision_db_user: "{{symfony_provision_project_name}}"
+symfony_provision_db_name: "{{symfony_provision_project_name}}"
+symfony_provision_vhosts_dir: /var/www/vhosts
+symfony_provision_project_dir: "{{symfony_provision_vhosts_dir}}/{{symfony_provision_project_name}}"
+symfony_provision_webroot: "{{symfony_provision_project_dir}}/current/web"
+
+symfony_provision_certifcate: /etc/pki/tls/certs/{{symfony_provision_project_name}}.crt
+symfony_provision_key: /etc/pki/tls/private/{{symfony_provision_project_name}}.key
+symfony_provision_ca_certs: /etc/pki/tls/certs/startcom-bundle.crt
+
+symfony_provision_domain: "{{ symfony_provision_hostname.split('.')[1:] | join('.') }}"

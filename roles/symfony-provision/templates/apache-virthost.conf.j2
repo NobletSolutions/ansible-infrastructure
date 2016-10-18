@@ -1,0 +1,45 @@
+<VirtualHost *:80>
+  ServerName {{symfony_provision_hostname}} 
+  Redirect / https://{{symfony_provision_hostname}} /
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName {{symfony_provision_hostname}} 
+
+  DocumentRoot {{symfony_provision_webroot}}
+  <Directory "{{symfony_provision_webroot}}">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride None
+    Order allow,deny
+    allow from all
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^(.*)$ /app.php [QSA,L]
+    </IfModule>
+	
+	<LimitExcept POST GET>
+      Deny from all
+    </LimitExcept>
+  </Directory>
+
+  <Directory {{symfony_provision_webroot}}/bundles>
+    <IfModule mod_rewrite.c>
+      RewriteEngine Off
+    </IfModule>
+  </Directory>
+
+  SSLEngine on
+
+  SSLProtocol -ALL +TLSv1 +TLSv1.1 +TLSv1.2
+  SSLHonorCipherOrder On
+  SSLCipherSuite ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  SSLOptions StrictRequire
+
+  SSLCertificateFile /etc/pki/tls/certs/{{symfony_provision_certifcate}}
+  SSLCertificateKeyFile /etc/pki/tls/private/{{symfony_provision_key}}
+  SSLCertificateChainFile /etc/pki/tls/certs/{{symfony_provision_ca_certs}}
+</VirtualHost>
+

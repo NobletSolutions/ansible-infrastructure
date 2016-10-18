@@ -1,0 +1,25 @@
+# This file is a "template" of what your parameters.yml file should look like
+# Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
+# http://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+parameters:
+    router.request_context.host: es.noblet.ca
+    router.request_context.scheme: http
+
+    database_host:     127.0.0.1
+    database_port:     ~
+    database_name:     {{symfony_provision_db_name}}
+    database_user:     {{symfony_provision_db_user}}
+    database_password: {{symfony_provision_db_password}}
+
+    mailer_transport:  smtp
+    mailer_host:       127.0.0.1
+    mailer_user:       ~
+    mailer_password:   ~
+
+    # A secret key that's used to generate certain security-related tokens
+    secret:             {{symfony_provision_token_secret.stdout}}
+
+    monolog.error.from_email: noreply@{{symfony_provision_domain}}
+    monolog.error.to_email: nathanael@noblet.ca
+    monolog.error.subject: {{symfony_provision_project_name}} Site Error
+

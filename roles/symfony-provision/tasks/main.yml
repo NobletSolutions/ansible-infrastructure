@@ -1,0 +1,61 @@
+---
+- name: Create vhost root
+  file: state=directory path="{{symfony_provision_vhosts_dir}}" owner=root group=root
+
+- name: Configure Apache
+  template: dest="/etc/httpd/conf.d/{{symfony_provision_project_name}}.conf" src=apache-virthost.conf.j2
+  when: symfony_provision_server == "apache"
+
+- name: Create apache .ssh and .composer dirs
+  file: state=directory path="~{{symfony_provision_server_user}}/{{item}}" owner="{{symfony_provision_server_user}}" group="{{symfony_provision_server_user}}" mode=0700
+  with_items:
+    - .ssh
+    - .composer
+
+- name: Create SSH Key
+  user: name="{{symfony_provision_server_user}}" generate_ssh_key=yes ssh_key_bits=2048 ssh_key_file=.ssh/id_rsa
+
+- name: Get SSH Key
+  shell: cat ~{{symfony_provision_server_user}}/.ssh/id_rsa.pub
+  register: ssh_key_pub
+
+- name: Set deploy key
+  uri:
+    url:  https://gitlab.com/api/v3/projects/{{gitlab_project_name}}/deploy_keys
+    method: POST
+    HEADER_Content-Type: 'application/json'
+    HEADER_PRIVATE-TOKEN: "{{ gitlab_private_token }}"
+    body: { "title": "{{ target }} deploy key", "key": "{{ ssh_key_pub.stdout }}" }
+    body_format: json
+    status_code: 201
+  ignore_errors: yes
+
+- name: Create symfony project root directory
+  file: state=directory path="{{item}}" owner="{{symfony_provision_server_user}}" group="{{symfony_provision_server_user}}"
+  with_items:
+    - "{{symfony_provision_project_dir}}"
+    - "{{symfony_provision_project_dir}}/shared"
+    - "{{symfony_provision_project_dir}}/shared/app"
+    - "{{symfony_provision_project_dir}}/shared/app/config"
+    - "{{symfony_provision_project_dir}}/releases"
+
+- name: Created Database User
+  mysql_user: 
+    name: "{{ symfony_provision_db_user }}"
+    priv: "{{ symfony_provision_db_name }}.*:ALL"
+    host: localhost 
+    password: "{{symfony_provision_db_password}}"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+
+- name: Create Database
+  mysql_db: name="{{symfony_provision_db_name}}" state=present login_user=root login_password="{{mysql_root_password}}"
+
+- name: Generate secret
+  shell: tr -d -c "a-zA-Z0-9" < /dev/urandom | head -c 35
+  register: symfony_provision_token_secret
+
+- name: Create Initial parameters.yml
+  template: dest="{{symfony_provision_project_dir}}/shared/app/config/parameters.yml" src=parameters.yml.j2 force=no owner="{{symfony_provision_server_user}}" group="{{symfony_provision_server_user}}" mode=0700
+
+
