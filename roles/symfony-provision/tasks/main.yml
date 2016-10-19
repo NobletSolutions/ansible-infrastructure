@@ -28,6 +28,7 @@
     body: { "title": "{{ target }} deploy key", "key": "{{ ssh_key_pub.stdout }}" }
     body_format: json
     status_code: 201
+  when: gitlab_private_token is defined
   ignore_errors: yes
 
 - name: Create symfony project root directory

@@ -38,8 +38,8 @@
 
   SSLOptions StrictRequire
 
-  SSLCertificateFile /etc/pki/tls/certs/{{symfony_provision_certifcate}}
-  SSLCertificateKeyFile /etc/pki/tls/private/{{symfony_provision_key}}
-  SSLCertificateChainFile /etc/pki/tls/certs/{{symfony_provision_ca_certs}}
+  SSLCertificateFile {{symfony_provision_certifcate}}
+  SSLCertificateKeyFile {{symfony_provision_key}}
+  SSLCertificateChainFile {{symfony_provision_ca_certs}}
 </VirtualHost>
 
