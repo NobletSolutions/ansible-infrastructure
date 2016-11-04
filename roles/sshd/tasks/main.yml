@@ -1,11 +1,14 @@
 ---
+- fail: msg="sshd_key_path needs to be set"
+  when: sshd_key_path is not defined
+
 - name: Set up authorized_keys for the root user
-  authorized_key: user=root state=present key='{{ item }}' manage_dir=yes
-  with_file: '{{sshd_public_keys}}'
+  authorized_key: user=root state=present key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
+  with_items: '{{sshd_public_keys}}'
 
 - name: Remove vagrant key
-  authorized_key: user=root state=absent key='{{ item }}' manage_dir=yes
-  with_file:
+  authorized_key: user=root state=absent key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
+  with_items:
     - vagrant
 
 - name: Reconfigure SSH to only allow access using key-based authentication
