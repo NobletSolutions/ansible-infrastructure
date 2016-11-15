@@ -16,5 +16,5 @@
 #    - .composer
 
 - name: Ensure httpd is running
-  action: service name=httpd state=started
+  action: service name=httpd state=started enabled=yes
 
