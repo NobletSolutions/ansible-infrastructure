@@ -40,8 +40,32 @@
   register: fail2ban_cyrus
 
 - name: Configure IMAP-ipset Ban
-  stat: src="cyrus-imap.conf"  dest="/etc/fail2ban/jail.d/cyrus-imap.conf" mode=0644 owner=root group=root
+  copy: src="cyrus-imap.conf"  dest="/etc/fail2ban/jail.d/cyrus-imap.conf" mode=0644 owner=root group=root
   when: fail2ban_cyrus.stat.exists
+
+- name: Test Apache Existence
+  stat: path=/etc/httpd/conf.d get_md5=no
+  register: fail2ban_apache
+
+- name: Configure Apache Ban
+  copy: src="apache-jail-404.conf" dest="/etc/fail2ban/jail.d/apache.conf" mode=0644 owner=root group=root
+  when: fail2ban_apache.stat.exists
+
+- name: Add apache 404 filter
+  copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
+  when: fail2ban_apache.stat.exists
+
+- name: Test nginx Existence
+  stat: path=/etc/httpd/conf.d get_md5=no
+  register: fail2ban_nginx
+
+- name: Configure nginx Ban
+  copy: src="nginx-jail-404.conf" dest="/etc/fail2ban/jail.d/nginx.conf" mode=0644 owner=root group=root
+  when: fail2ban_nginx.stat.exists
+
+- name: Add nginx 404 filter
+  copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
+  when: fail2ban_nginx.stat.exists
 
 - name: Setup ipset service
   copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0444
@@ -50,8 +74,14 @@
 - name: Install initial blacklist
   copy: src=ipset.save dest=/etc/sysconfig/ipset owner=root group=root mode=0744
 
+- name: Reload Systemd Daemon to pick up new ipset.service
+  systemd: daemon_reload=yes name=ipset state=started enabled=yes
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
+  notify: restart ipset
+
 - name: Enable ipset service
   service: name=ipset enabled=yes
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
   notify: restart ipset
 
 - name: Enable fail2ban
