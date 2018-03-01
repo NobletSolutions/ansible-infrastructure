@@ -15,6 +15,7 @@
     - { file: remi.repo, section: remi-php56, value: 1 }
     - { file: remi-php70.repo, section: remi-php70, value: 0 }
     - { file: remi-php71.repo, section: remi-php71, value: 0 }
+    - { file: remi-php72.repo, section: remi-php72, value: 0 }
     - { file: remi.repo, section: remi-php55, value: 0 }
 
 - name: PHP56 - Uninstall PECL opcache

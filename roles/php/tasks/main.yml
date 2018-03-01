@@ -14,10 +14,13 @@
 - include: php71-centos.yml
   when: php_version == 7.1 and ansible_distribution_major_version|int < 23
 
+- include: php72-centos.yml
+  when: php_version == 7.2 and ansible_distribution_major_version|int < 23
+
 - name: Install php
   yum: pkg={{item}} state=latest
   with_items:
-    - php
+    - php-fpm
     - php-gd
     - php-intl
     - php-tidy
