@@ -1,10 +1,20 @@
 ---
 - name: Install fail2ban, ipset
-  yum: name={{item}} state=present
-  with_items:
-    - fail2ban
-    - ipset
-    - jwhois
+  yum:
+    name:
+      - fail2ban
+      - ipset
+      - jwhois
+    state: present
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7 
+
+- name: Install fail2ban, ipset
+  yum:
+    name:
+      - fail2ban
+      - ipset
+    state: present
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
 
 - name: Check if firewalld is installed
   stat: path=/etc/firewalld get_md5=no
@@ -21,6 +31,9 @@
   include: firewalld.yml
   when: fail2ban_firewalld.stat.isdir is defined
 
+- name: Adjust fail2ban firewallcmd-ipset.conf
+  copy: src="firewallcmd-ipset.conf" dest="/etc/fail2ban/action.d/firewallcmd-ipset.conf" mode=0644 owner=root group=root
+  
 - name: Disable SSHD-iptables
   copy: src="ssh-iptables.conf" dest="/etc/fail2ban/jail.d/ssh-iptables.conf" mode=0644 owner=root group=root
 
@@ -69,21 +82,21 @@
 
 - name: Setup ipset service
   copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0444
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
 
 - name: Install initial blacklist
   copy: src=ipset.save dest=/etc/sysconfig/ipset owner=root group=root mode=0744
 
 - name: Reload Systemd Daemon to pick up new ipset.service
   systemd: daemon_reload=yes name=ipset state=started enabled=yes
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
   notify: restart ipset
 
 - name: Enable ipset service
-  service: name=ipset enabled=yes
+  service: name=ipset enabled=yes state=started
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
   notify: restart ipset
 
 - name: Enable fail2ban
-  service: name=fail2ban enabled=yes
+  service: name=fail2ban enabled=yes state=started
   notify: restart fail2ban
