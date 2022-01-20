@@ -1,4 +1,7 @@
 ---
+- fail: msg="gitlab_project_name needs to be defined"
+  when: gitlab_project_token is defined and gitlab_project_name is not defined
+
 - name: Create vhost root
   file: state=directory path="{{symfony_provision_vhosts_dir}}" owner=root group=root
 
@@ -8,6 +11,7 @@
 
 - name: Create apache .ssh and .composer dirs
   file: state=directory path="~{{symfony_provision_server_user}}/{{item}}" owner="{{symfony_provision_server_user}}" group="{{symfony_provision_server_user}}" mode=0700
+  become: false
   with_items:
     - .ssh
     - .composer
@@ -44,13 +48,15 @@
   mysql_user: 
     name: "{{ symfony_provision_db_user }}"
     priv: "{{ symfony_provision_db_name }}.*:ALL"
-    host: localhost 
+    host: "{{ symfony_provision_db_host}}"
     password: "{{symfony_provision_db_password}}"
     login_user: root
     login_password: "{{mysql_root_password}}"
+  ignore_errors: yes
 
 - name: Create Database
   mysql_db: name="{{symfony_provision_db_name}}" state=present login_user=root login_password="{{mysql_root_password}}"
+  ignore_errors: yes
 
 - name: Generate secret
   shell: tr -d -c "a-zA-Z0-9" < /dev/urandom | head -c 35

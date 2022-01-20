@@ -3,6 +3,8 @@ symfony_provision_server: apache
 symfony_provision_server_user: apache
 symfony_provision_db_user: "{{symfony_provision_project_name}}"
 symfony_provision_db_name: "{{symfony_provision_project_name}}"
+symfony_provision_db_host: localhost
+symfony_provision_db_env_credentials: false
 symfony_provision_vhosts_dir: /var/www/vhosts
 symfony_provision_project_dir: "{{symfony_provision_vhosts_dir}}/{{symfony_provision_project_name}}"
 symfony_provision_webroot: "{{symfony_provision_project_dir}}/current/web"

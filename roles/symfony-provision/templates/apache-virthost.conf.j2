@@ -4,6 +4,11 @@
 </VirtualHost>
 
 <VirtualHost *:443>
+{% if symfony_provision_db_env_credentials %}
+  SetEnv SYMFONY__DATABASE__USER {{symfony_provision_db_user}}
+  SetEnv SYMFONY__DATABASE__PASSWORD {{symfony_provision_db_password}}
+
+{% endif %}
   ServerName {{symfony_provision_hostname}} 
 
   DocumentRoot {{symfony_provision_webroot}}
