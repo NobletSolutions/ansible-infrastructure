@@ -21,18 +21,18 @@
   notify:
     - update aide
 
-- name: Install NTP
-  yum: pkg=ntp state=latest
-
 - name: Install Vim
   yum: pkg=vim state=latest
 
 - name: Install Haveged
   yum: pkg=haveged state=latest
 
-- name: Ensure ntp is running
-  service: name=ntpd state=started enabled=yes
-
 - name: Ensure haveged is running
   service: name=haveged state=started enabled=yes
+
+- include: centos-7.yml
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7 
+
+- include: centos-8.yml
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
 
