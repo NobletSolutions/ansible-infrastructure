@@ -1,15 +1,29 @@
 ---
+- name: Test For Apache
+  stat: path=/etc/httpd
+  register: apache_dir
+
 - name: Install app_dev.conf
   copy: src=app_dev.conf dest=/etc/httpd/conf.d/app_dev.conf
+  when: apache_dir.stat.isdir is defined and apache_dir.stat.isdir
 
 - name: Create passwd
   file: path=/etc/httpd/passwd state=directory owner=root group=root mode=755
+  when: apache_dir.stat.isdir is defined and apache_dir.stat.isdir
 
 - name: include passlib
   yum: pkg=python-passlib state=present
+  notify:
+    - update aide
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7
+
+- name: include passlib
+  yum: pkg=python3-passlib state=present
+  notify:
+    - update aide
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
 
 - name: Add htpasswd users
   htpasswd: name=gnat password=19mada98 state=present path=/etc/httpd/passwd/symfony-dev
-  notify:
-    - update aide
+  when: apache_dir.stat.isdir is defined and apache_dir.stat.isdir
 
