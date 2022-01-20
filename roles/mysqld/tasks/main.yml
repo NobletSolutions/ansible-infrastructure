@@ -9,6 +9,16 @@
   notify: 
     - update aide
 
+- include: centos8.yml
+  when: ansible_distribution_major_version|int == 8
+  notify: 
+    - update aide
+    
+- include: fedora.yml
+  when: ansible_distribution_major_version|int >= 23
+  notify:
+    - update aide
+
 - name: Update root password
   mysql_user: name=root host=localhost password="{{mysql_root_password}}" login_user=root login_password="{{mysql_old_root_password}}"
   when: mysql_old_root_password != False

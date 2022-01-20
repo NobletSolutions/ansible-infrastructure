@@ -4,7 +4,7 @@
     state: present
     pkg:
       - mariadb-server
-      - MySQL-python
+      - python3-mysql
 
 - name: Ensure mariadb is started
   service: name=mariadb enabled=yes state=started
