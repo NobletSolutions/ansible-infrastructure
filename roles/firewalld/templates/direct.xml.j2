@@ -2,4 +2,6 @@
 <direct>
   <rule priority="0" table="filter" ipv="ipv4" chain="INPUT_direct">-m multiport -p tcp '!' --dports 80,443 -m set --match-set blacklist src -j DROP</rule>
   <rule priority="1" table="filter" ipv="ipv4" chain="INPUT_direct">-p udp -m set --match-set blacklist src -j DROP</rule>
+  <rule priority="0" table="filter" ipv="ipv4" chain="INPUT">-p tcp --tcp-flags SYN SYN -m tcpmss --mss 1:500 -j DROP</rule>
+  <rule priority="0" table="filter" ipv="ipv6" chain="INPUT">-p tcp --tcp-flags SYN SYN -m tcpmss --mss 1:500 -j DROP</rule>
 </direct>
