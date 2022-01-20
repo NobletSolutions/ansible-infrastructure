@@ -17,22 +17,28 @@
 - include: php72-centos.yml
   when: php_version == 7.2 and ansible_distribution_major_version|int < 23
 
+- include: php73-centos.yml
+  when: php_version == 7.3 and ansible_distribution_major_version|int < 23
+
+- include: php74-centos.yml
+  when: php_version == 7.4 and ansible_distribution_major_version|int < 23
+
 - name: Install php
-  yum: pkg={{item}} state=latest
-  with_items:
-    - php-fpm
-    - php-gd
-    - php-intl
-    - php-tidy
-    - php-pdo
-    - php-cli
-    - php-process
-    - php-xml
-    - php-mysql
-    - php-mbstring
-    - php-bcmath
-    - php-pecl-imagick
-    - php-pecl-zip
+  yum: 
+    state: latest
+    name:
+      - php-fpm
+      - php-gd
+      - php-intl
+      - php-pdo
+      - php-cli
+      - php-process
+      - php-xml
+      - php-mysql
+      - php-mbstring
+      - php-bcmath
+      - php-pecl-imagick
+      - php-pecl-zip
   notify:
     - update aide
 
