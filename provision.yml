@@ -1,0 +1,10 @@
+---
+- hosts: "{{target}}"
+  user: root
+  roles:
+    - symfony-provision
+  vars:
+    symfony_provision_project_name: carms
+    symfony_provision_hostname: rural-dev.ucalgary-carms.ca
+    symfony_provision_db_password: carms2016gnat
+

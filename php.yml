@@ -1,0 +1,6 @@
+---
+- hosts: '{{target}}'
+  user: root
+  roles:
+    - base
+    - php 

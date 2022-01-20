@@ -1,0 +1,6 @@
+---
+- hosts: '{{target}}'
+  user: root
+  tasks:
+    - name: Update packages
+      yum: name='*' state=latest

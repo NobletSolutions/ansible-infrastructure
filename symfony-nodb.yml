@@ -1,0 +1,9 @@
+---
+- hosts: '{{target}}'
+  user: root
+  roles:
+    - base
+    - httpd
+    - php
+    - composer
+    - symfony
