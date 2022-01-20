@@ -27,7 +27,7 @@
   command: "cat $HOME/.ssh/id_rsa.pub"
   register: backup_target_master_ssh_pubkey
   changed_when: False
-  always_run: True
+  check_mode: no
 
 - name: Set the SSH public key for the backup system user
   authorized_key: user={{ backup_target_user }} key="{{ backup_target_master_ssh_pubkey.stdout }}"
