@@ -1,0 +1,10 @@
+---
+prometheus_node_exporter_firewalld_zone: prometheus-access
+prometheus_firewalld_source_ips: 
+prometheus_node_exporter_firewalld_port: 9100
+
+# prometheus_firewalld_source_ips is supposed to be an array of values
+# For example
+#
+#prometheus_firewalld_source_ips: 
+#   - 127.0.0.1
