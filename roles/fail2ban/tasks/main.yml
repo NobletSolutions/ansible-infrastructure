@@ -1,11 +1,6 @@
 ---
-- name: Install fail2ban, ipset
-  yum:
-    name:
-      - fail2ban
-      - ipset
-      - jwhois
-    state: present
+- name: Install jwhois
+  yum: name=jwhois state=present
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7 
 
 - name: Install fail2ban, ipset
@@ -14,7 +9,6 @@
       - fail2ban
       - ipset
     state: present
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
 
 - name: Check if firewalld is installed
   stat: path=/etc/firewalld get_md5=no
