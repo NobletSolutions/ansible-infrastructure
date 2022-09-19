@@ -1,12 +1,17 @@
 ---
 - name: Install libselinux-python
   yum: name=libselinux-python state=present
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7
+
+- name: Install libselinux-python
+  yum: name=python3-libselinux state=present
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
 
 - name: Install haveged to ensure we have good entropy
   yum: name=haveged state=present
 
 - name: Enable haveged service
-  service: name=haveged state=running enabled=yes
+  service: name=haveged state=started enabled=yes
 
 - name: Update all packages to latest version
   yum: name=* state=latest
