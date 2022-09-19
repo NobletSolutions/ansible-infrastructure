@@ -1,0 +1,11 @@
+---
+influxdb_firewalld_zone: influxdb-access
+influxdb_firewalld_source_ips: 
+influxdb_firewalld_port: 8086
+
+
+# influxdb_firewalld_source_ips is supposed to be an array of values
+# For example
+#
+#influxdb_firewalld_source_ips: 
+#   - 127.0.0.1
