@@ -9,7 +9,7 @@
   yum: name=golang-github-prometheus-mysqld-exporter state=present
 
 - name: Update mysql.cnf user
-  ini_file: dest=/etc/prometheus/mysqld_exporter/mysql.cnf section=client option=enabled value="{{prometheus_mysqld_exporter_username}}"
+  ini_file: dest=/etc/prometheus/mysqld_exporter/mysql.cnf section=client option=user value="{{prometheus_mysqld_exporter_username}}"
 
 - name: Update mysql.cnf password
   ini_file: dest=/etc/prometheus/mysqld_exporter/mysql.cnf section=client option=password value="{{prometheus_mysqld_exporter_password}}"
