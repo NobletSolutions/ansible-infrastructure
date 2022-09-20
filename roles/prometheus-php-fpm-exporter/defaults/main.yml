@@ -4,6 +4,7 @@ prometheus_firewalld_source_ips:
 prometheus_php_fpm_exporter_firewalld_port: 9253
 prometheus_php_fpm_exporter_listen: "127.0.0.1:9253"
 prometheus_php_fpm_exporter_scrape_uri: 
+prometheus_php_fpm_group: nginx
 
 # prometheus_firewalld_source_ips: is supposed to be an array of values
 # For example
