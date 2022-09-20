@@ -1,0 +1,5 @@
+---
+- hosts: '{{ target }}'
+  user: root
+  roles:
+    - prometheus-php-fpm-exporter
