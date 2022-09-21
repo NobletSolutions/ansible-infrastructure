@@ -1,0 +1,7 @@
+[noblet-epel]
+name = Noblet Solutions EPEL
+baseurl = https://yum.noblet.ca/epel/7
+failovermethod = priority
+enabled = 1
+gpgcheck = 0
+

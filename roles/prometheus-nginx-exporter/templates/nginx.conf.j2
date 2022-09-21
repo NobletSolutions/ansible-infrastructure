@@ -1,0 +1,14 @@
+server {
+    listen {{prometheus_nginx_exporter_scrape_port}} default_server;
+    server_name _;
+
+    location / {
+    }
+
+    location {{prometheus_nginx_exporter_scrape_path}} {
+       stub_status;
+       allow 127.0.0.1;
+       deny all;
+    }
+}
+

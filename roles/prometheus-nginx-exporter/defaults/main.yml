@@ -1,0 +1,17 @@
+---
+prometheus_nginx_exporter_firewalld_zone: prometheus-access
+prometheus_firewalld_source_ips: 
+prometheus_nginx_exporter_firewalld_port: 9113
+prometheus_nginx_exporter_listen: "127.0.0.1:9113"
+prometheus_nginx_exporter_scrape_host: "http://127.0.0.1"
+prometheus_nginx_exporter_scrape_port: "8008"
+prometheus_nginx_exporter_scrape_path: "/nginx_status"
+prometheus_nginx_exporter_scrape_uri: "{{prometheus_nginx_exporter_scrape_host}}:{{prometheus_nginx_exporter_scrape_port}}{{prometheus_nginx_exporter_scrape_path}}"
+
+prometheus_nginx_group: nginx
+
+# prometheus_firewalld_source_ips: is supposed to be an array of values
+# For example
+#
+#prometheus_firewalld_source_ips:: 
+#   - 127.0.0.1
