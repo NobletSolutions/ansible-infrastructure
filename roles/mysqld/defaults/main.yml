@@ -1,3 +1,4 @@
 ---
 mysql_root_password: MySQLRootPassword
 mysql_old_root_password: False
+mysql_oom_score_adj: -1000

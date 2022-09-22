@@ -6,5 +6,14 @@
       - mariadb-server
       - python3-mysql
 
+- name: Create systemd mariadb.service.d directory
+  file: path=/etc/systemd/system/mariadb.service.d state=directory mode=0755
+
+- name: Add service mariadb drop in for OOMScoreAdj
+  template: src=oom_killer.conf.j2 dest=/etc/systemd/system/mariadb.service.d/oom_killer.conf owner=root group=root mode=0644  
+
+- name: Ensure systemd sees the mariadb.service drop in
+  systemd: daemon_reload=yes
+
 - name: Ensure mariadb is started
   service: name=mariadb enabled=yes state=started
