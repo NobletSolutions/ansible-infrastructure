@@ -1,0 +1,27 @@
+---
+- name: Ensure we have noblet-epel.repo
+  copy: src=noblet-epel.repo dest=/etc/yum.repos.d/noblet-epel.repo owner=root group=root mode=0644
+
+- name: Install ckeditor-word-exporter
+  yum: name=ckeditor-word-export state=latest
+
+- name: Update license key
+  lineinfile:
+    path: /etc/sysconfig/ckeditor-word-export
+    regexp: '^LICENSE_KEY='
+    line: "LICENSE_KEY={{ckeditor_word_exporter_license}}"
+
+- name: Update secret key
+  lineinfile:
+    path: /etc/sysconfig/ckeditor-word-export
+    regexp: '^SECRET_KEY='
+    line: "SECRET_KEY={{ckeditor_word_exporter_secret}}"
+
+- name: Update metric_logs key
+  lineinfile:
+    path: /etc/sysconfig/ckeditor-word-export
+    regexp: '^ENABLE_METRIC_LOGS='
+    line: "ENABLE_METRIC_LOGS={{ckeditor_word_exporter_metric_logs}}"
+
+- name: Ensure service is running
+  service: name=ckeditor-word-export state=started enabled=yes
