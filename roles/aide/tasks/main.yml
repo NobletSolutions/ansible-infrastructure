@@ -2,6 +2,9 @@
 - name: AIDE install
   yum: name=aide state=present
 
+- name: Ensure cron exists
+  yum: name=crontabs state=present
+
 - name: Install AIDE crontab
   copy: src=crontab dest=/etc/cron.daily/aide mode=0750 owner=root group=root
 
