@@ -1,6 +1,6 @@
 ---
 - name: PHP74 -> remi-release install
-  yum: name=https://rpms.remirepo.net/enterprise/remi-release-7.rpm state=present disable_gpg_check=yes
+  ansible.builtin.dnf: name="https://rpms.remirepo.net/enterprise/remi-release-{{ansible_distribution_major_version}}.rpm" state=present disable_gpg_check=yes
 
 - name: PHP74 -> import gpg key
   rpm_key: state=present key=/etc/pki/rpm-gpg/RPM-GPG-KEY-remi

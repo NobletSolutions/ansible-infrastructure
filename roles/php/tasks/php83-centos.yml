@@ -1,0 +1,16 @@
+---
+- name: PHP83 -> remi-release install
+  ansible.builtin.dnf: name="https://rpms.remirepo.net/enterprise/remi-release-{{ansible_distribution_major_version}}.rpm" state=present disable_gpg_check=yes
+
+- name: PHP83 -> import gpg key
+  ansible.builtin.rpm_key: state=present key=/etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+
+- name: PHP83 -> Enable/Disable remi repositories
+  ansible.builtin.ini_file: dest=/etc/yum.repos.d/{{ item.file }} section={{ item.section }} option=enabled value={{ item.value }}
+  with_items:
+    - { file: remi.repo, section: remi, value: 1 }
+
+- name: PHP83 -> Enable php83 module
+  ansible.builtin.command:
+    cmd: 'dnf module enable php:remi-8.3 -y'
+

@@ -1,30 +1,12 @@
 ---
-- include: php54-centos.yml
-  when: php_version == 5.4 and ansible_distribution_major_version|int == 6
-
-- include: php55-centos.yml
-  when: php_version == 5.5 and ansible_distribution_major_version|int < 23
-
-- include: php56-centos.yml
-  when: php_version == 5.6 and ansible_distribution_major_version|int < 23
-
-- include: php70-centos.yml
-  when: php_version == 7.0 and ansible_distribution_major_version|int < 23
-
-- include: php71-centos.yml
-  when: php_version == 7.1 and ansible_distribution_major_version|int < 23
-
-- include: php72-centos.yml
-  when: php_version == 7.2 and ansible_distribution_major_version|int < 23
-
-- include: php73-centos.yml
-  when: php_version == 7.3 and ansible_distribution_major_version|int < 23
-
-- include: php74-centos.yml
+- include_tasks: php74-centos.yml
   when: php_version == 7.4 and ansible_distribution_major_version|int < 23
 
-- include: php81-centos.yml
+- include_tasks: php81-centos.yml
   when: php_version == 8.1 and ansible_distribution_major_version|int < 23
+
+- include_tasks: php83-centos.yml
+  when: php_version == 8.3 and ansible_distribution_major_version|int < 23
 
 - name: Install php
   yum: 
@@ -45,14 +27,6 @@
       - php-pecl-zip
   notify:
     - update aide
-
-- name: Install opcahe 
-  yum: pkg=php-opcache state=present
-  when: php_version != 5.4
-
-- name: Install PECL opcache
-  yum: pkg=php-pecl-opcache state=present
-  when: php_version == 5.4
 
 - name: PHP datetime
   ini_file: dest=/etc/php.ini section=Date option=date.timezone value="{{php_timezone}}" mode=0644
