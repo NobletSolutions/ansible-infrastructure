@@ -1,5 +1,0 @@
----
-- hosts: '{{target}}'
-  user: root
-  roles:
-    - htmltopdf
