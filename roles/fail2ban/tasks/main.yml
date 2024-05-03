@@ -1,95 +1,41 @@
 ---
-- name: Install jwhois
-  yum: name=jwhois state=present
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7 
-
-- name: Install fail2ban, ipset
+- name: Install fail2ban
   yum:
-    name:
-      - fail2ban
-      - ipset
+    name: fail2ban
     state: present
-
-- name: Check if firewalld is installed
-  stat: path=/etc/firewalld get_md5=no
-  register: fail2ban_firewalld
 
 - name: Create jail.d
   file: path=/etc/fail2ban/jail.d owner=root group=root mode=755 state=directory
 
-- name: Include iptables
-  include: iptables.yml
-  when: fail2ban_firewalld.stat.isdir is not defined
+- name: Configure fail2ban - firewalldcmd
+  template: src="defaults-firewalld.j2" dest="/etc/fail2ban/jail.d/00-defaults.conf" mode=0644 owner=root group=root
 
-- name: Include firewalld
-  include: firewalld.yml
-  when: fail2ban_firewalld.stat.isdir is defined
+- name: Configure SSHD Ban
+  copy: src="ssh-jail.conf"  dest="/etc/fail2ban/jail.d/ssh.conf" mode=0644 owner=root group=root
 
-- name: Adjust fail2ban firewallcmd-ipset.conf
-  copy: src="firewallcmd-ipset.conf" dest="/etc/fail2ban/action.d/firewallcmd-ipset.conf" mode=0644 owner=root group=root
-  
-- name: Disable SSHD-iptables
-  copy: src="ssh-iptables.conf" dest="/etc/fail2ban/jail.d/ssh-iptables.conf" mode=0644 owner=root group=root
+# - name: Test Apache Existence
+#   ansible.builtin.stat: path=/etc/httpd/conf.d get_checksum=false
+#   register: fail2ban_apache
 
-- name: Configure SSHD-ipset Ban
-  copy: src="ssh-ipset.conf"  dest="/etc/fail2ban/jail.d/ssh-ipset.conf" mode=0644 owner=root group=root
+# - name: Configure Apache Ban
+#   copy: src="apache-jail-404.conf" dest="/etc/fail2ban/jail.d/apache.conf" mode=0644 owner=root group=root
+#   when: fail2ban_apache.stat.exists
 
-- name: Test VSFTP Existence
-  stat: path=/etc/vsftpd get_md5=no
-  register: fail2ban_vsftpd
+# - name: Add apache 404 filter
+#   copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
+#   when: fail2ban_apache.stat.exists
 
-- name: Configure VSFTP-ipset Ban
-  copy: src="vsftp-ipset.conf"  dest="/etc/fail2ban/jail.d/vsftp-ipset.conf" mode=0644 owner=root group=root
-  when: fail2ban_vsftpd.stat.exists
+# - name: Test nginx Existence
+#   ansible.builtin.stat: path=/etc/httpd/conf.d get_checksum=false
+#   register: fail2ban_nginx
 
-- name: Test Cyrus-Imap Existence
-  stat: path=/etc/cyrus.conf get_md5=no 
-  register: fail2ban_cyrus
+# - name: Configure nginx Ban
+#   copy: src="nginx-jail-404.conf" dest="/etc/fail2ban/jail.d/nginx.conf" mode=0644 owner=root group=root
+#   when: fail2ban_nginx.stat.exists
 
-- name: Configure IMAP-ipset Ban
-  copy: src="cyrus-imap.conf"  dest="/etc/fail2ban/jail.d/cyrus-imap.conf" mode=0644 owner=root group=root
-  when: fail2ban_cyrus.stat.exists
-
-- name: Test Apache Existence
-  stat: path=/etc/httpd/conf.d get_md5=no
-  register: fail2ban_apache
-
-- name: Configure Apache Ban
-  copy: src="apache-jail-404.conf" dest="/etc/fail2ban/jail.d/apache.conf" mode=0644 owner=root group=root
-  when: fail2ban_apache.stat.exists
-
-- name: Add apache 404 filter
-  copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
-  when: fail2ban_apache.stat.exists
-
-- name: Test nginx Existence
-  stat: path=/etc/httpd/conf.d get_md5=no
-  register: fail2ban_nginx
-
-- name: Configure nginx Ban
-  copy: src="nginx-jail-404.conf" dest="/etc/fail2ban/jail.d/nginx.conf" mode=0644 owner=root group=root
-  when: fail2ban_nginx.stat.exists
-
-- name: Add nginx 404 filter
-  copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
-  when: fail2ban_nginx.stat.exists
-
-- name: Setup ipset service
-  copy: src=ipset.service dest=/etc/systemd/system/ipset.service owner=root group=root mode=0444
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
-
-- name: Install initial blacklist
-  copy: src=ipset.save dest=/etc/sysconfig/ipset owner=root group=root mode=0744
-
-- name: Reload Systemd Daemon to pick up new ipset.service
-  systemd: daemon_reload=yes name=ipset state=started enabled=yes
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
-  notify: restart ipset
-
-- name: Enable ipset service
-  service: name=ipset enabled=yes state=started
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 6
-  notify: restart ipset
+# - name: Add nginx 404 filter
+#   copy: src="apache-filter-404.conf" dest="/etc/fail2ban/filter.d/apache-404.conf" mode=0644 owner=root group=root
+#   when: fail2ban_nginx.stat.exists
 
 - name: Enable fail2ban
   service: name=fail2ban enabled=yes state=started

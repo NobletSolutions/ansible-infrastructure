@@ -1,0 +1,6 @@
+[Unit]
+Description=AIDE Check
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/aide --check

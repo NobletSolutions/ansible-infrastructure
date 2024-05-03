@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ipset type="hash:{{ item.type }}">
+  <description>{{ item.description }}</description>
+{% if item.options is defined %}
+{% for option in item.options %}
+  <option name="{{ option.name }}" value="{{ option.value }}"/>
+{% endfor %}
+{%endif %}
+{% for entry in item.entries if entry != "" %}
+  <entry>{{ entry }}</entry>
+{% endfor %}
+</ipset>

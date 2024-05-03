@@ -1,4 +1,4 @@
 --- 
 sshd_public_keys: 
-  - gnat
-  - gnat-mobile
+  - gnat-iridium
+  - gnat-msi

@@ -1,6 +1,0 @@
-- name: Install Chronyd
-  yum: pkg=chrony state=latest
-
-- name: Ensure chronyd is running
-  service: name=chronyd state=started enabled=yes
-

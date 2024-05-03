@@ -1,1 +1,0 @@
-create blacklist hash:net family inet hashsize 8192 maxelem 65536

@@ -1,7 +1,4 @@
 ---
-- name: restart ipset
-  service: name=ipset state=restarted enabled=yes
-
 - name: restart fail2ban
   service: name=fail2ban state=restarted enabled=yes
 

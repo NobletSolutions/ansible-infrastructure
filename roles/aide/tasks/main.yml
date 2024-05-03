@@ -1,24 +1,29 @@
 ---
 - name: AIDE install
-  yum: name=aide state=present
-
-- name: Ensure cron exists
-  yum: name=crontabs state=present
-
-- name: Install AIDE crontab
-  copy: src=crontab dest=/etc/cron.daily/aide mode=0750 owner=root group=root
+  ansible.builtin.dnf: name=aide state=present
 
 - name: Configure AIDE
-  template: src=aide.conf.j2 dest=/etc/aide.conf owner=root group=root mode=600
+  ansible.builtin.template: src=aide.conf.j2 dest=/etc/aide.conf owner=root group=root mode=600
 
-- stat: path=/var/lib/aide/aide.db.gz
+- ansible.builtin.stat: path=/var/lib/aide/aide.db.gz
   register: aidedb
 
 - name: Create Initial AIDE database
-  command: aide --init
+  ansible.builtin.command: aide --init
   when: aidedb.stat.exists == False
 
 - name: Move Initial AIDE database
-  command: mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+  ansible.builtin.command: mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
   when: aidedb.stat.exists == False
 
+- name: Install SystemD service and timer
+  ansible.builtin.copy: src={{item}} dest=/etc/systemd/system/{{item}} mode=0644 owner=root group=root
+  with_items:
+    - aide-check.timer
+    - aide-check.service
+  
+- name: Enable SystemD timer
+  ansible.builtin.systemd_service:
+    name: aide-check.timer
+    state: restarted
+    daemon_reload: true

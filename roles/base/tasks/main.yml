@@ -1,26 +1,4 @@
 ---
-- name: stat prelink
-  stat: path=/usr/sbin/prelink
-  register: st_prelink
-
-- name: update /etc/sysconfig/prelink to no
-  command: sed -i -e 's/PRELINKING=yes/PRELINKING=no/' /etc/sysconfig/prelink
-  when: st_prelink.stat.exists
-
-- name: undo prelink actions
-  shell: prelink -uav >> /var/log/prelink/prelink.log 2>&1
-  when: st_prelink.stat.exists
-
-- name: remove prelink cache
-  file: path=/etc/prelink.cache state=absent
-  when: st_prelink.stat.exists
-
-- name: remove prelink
-  yum: name=prelink state=absent
-  when: st_prelink.stat.exists
-  notify:
-    - update aide
-
 - name: Install Vim
   yum: pkg=vim state=latest
 
@@ -30,9 +8,9 @@
 - name: Ensure haveged is running
   service: name=haveged state=started enabled=yes
 
-- include: centos-7.yml
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7 
+- name: Install Chronyd
+  yum: pkg=chrony state=latest
 
-- include: centos-8.yml
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 8
+- name: Ensure chronyd is running
+  service: name=chronyd state=started enabled=yes
 

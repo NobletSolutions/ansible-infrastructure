@@ -5,19 +5,34 @@
 - name: Ensure firewalld is enabled
   service: name=firewalld state=started enabled=yes
 
-- name: Add direct.xml
-  template: src=direct.xml.j2 dest=/etc/firewalld/direct.xml owner=root group=root mode=0744
-
 - name: Enable ssh access
   firewalld: service=ssh immediate=yes permanent=yes state=enabled
+  notify: restart firewalld
 
 - name: Enable default services
   firewalld: service={{ item }} immediate=yes permanent=yes state=enabled
   with_items: '{{firewalld_allowed_services}}'
+  notify: restart firewalld
 
 - name: Enable default ports
   firewalld: port={{ item }} immediate=yes permanent=yes state=enabled
-  with_items: '{{firewalld_allowed_ports}}'
+  with_items: '{{ firewalld_allowed_ports }}'
+  notify: restart firewalld
+
+- name: Configure denied ipsets
+  ansible.builtin.template:
+     src: ipset-denylist.xml.j2
+     dest: /etc/firewalld/ipsets/{{ item.name }}.xml
+     owner: root
+     group: root
+     mode: 0644
+  with_items: "{{ firewalld_denied_ips }}"
+  notify: restart firewalld
+
+- name: Add ipset to drop zone
+  firewalld: source=ipset:{{item.name}} zone=drop immediate=yes permanent=yes state=enabled
+  with_items: "{{ firewalld_denied_ips }}"
+  notify: restart firewalld
 
 - name: Enable firewalld
   service: name=firewalld enabled=yes

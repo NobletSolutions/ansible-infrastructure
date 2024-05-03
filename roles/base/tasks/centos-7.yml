@@ -1,7 +1,0 @@
----
-- name: Install NTP
-  yum: pkg=ntp state=latest
-
-- name: Ensure ntp is running
-  service: name=ntpd state=started enabled=yes
-
