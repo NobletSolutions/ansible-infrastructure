@@ -1,23 +1,9 @@
 ---
-- include: centos6.yml
-  when: ansible_distribution_major_version|int == 6
-  notify: 
-    - update aide
-
-- include: centos7.yml
-  when: ansible_distribution_major_version|int == 7
-  notify: 
-    - update aide
-
-- include: centos8.yml
-  when: ansible_distribution_major_version|int == 8
-  notify: 
-    - update aide
+- include_tasks: "centos{{ansible_distribution_major_version}}.yml"
+  when: ansible_distribution_major_version|int < 23
     
-- include: fedora.yml
+- include_tasks: fedora.yml
   when: ansible_distribution_major_version|int >= 23
-  notify:
-    - update aide
 
 - name: Update root password
   mysql_user: name=root host=localhost password="{{mysql_root_password}}" login_user=root login_password="{{mysql_old_root_password}}"

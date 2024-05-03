@@ -4,7 +4,7 @@
     state: present
     pkg:
       - mariadb-server
-      - python3-mysql
+      - python3-mysqlclient
 
 - name: Create systemd mariadb.service.d directory
   file: path=/etc/systemd/system/mariadb.service.d state=directory mode=0755
