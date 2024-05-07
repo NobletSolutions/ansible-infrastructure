@@ -18,3 +18,13 @@
   service: name=sshd enabled=yes
   notify:
     - restart sshd
+
+- include_tasks: disable-empty-pass.yml
+- include_tasks: disable-host-auth.yml
+- include_tasks: disable-rhosts.yml
+- include_tasks: disallow-env-override.yml
+- include_tasks: login-grace-time.yml
+- include_tasks: max-client.yml
+- include_tasks: max-auth-tries.yml
+- include_tasks: max-sessions.yml
+- include_tasks: max-start-ups.yml

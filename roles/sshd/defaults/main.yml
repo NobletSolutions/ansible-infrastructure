@@ -2,3 +2,9 @@
 sshd_public_keys: 
   - gnat-iridium
   - gnat-msi
+
+sshd_max_auth_tries_value: 4
+sshd_max_sessions: 5
+sshd_set_keepalive: 0
+sshd_set_login_grace_time: 60
+sshd_set_maxstartups: "10:30:60"
