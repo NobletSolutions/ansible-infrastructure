@@ -1,0 +1,6 @@
+- name: Ensure kernel module 'squashfs' is disabled
+  lineinfile:
+    create: true
+    dest: /etc/modprobe.d/squashfs.conf
+    regexp: install\s+squashfs
+    line: install squashfs /bin/false

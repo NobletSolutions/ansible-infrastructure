@@ -14,3 +14,8 @@
 - name: Ensure chronyd is running
   service: name=chronyd state=started enabled=yes
 
+- include_tasks: protect-dev-shm.yml
+- include_tasks: randomize-mem.yml
+- include_tasks: disable-squashfs.yml
+- include_tasks: disable-udf.yml
+- include_tasks: disable-usb-storage.yml

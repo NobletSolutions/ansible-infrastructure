@@ -1,0 +1,6 @@
+- name: Ensure kernel module 'udf' is disabled
+  lineinfile:
+    create: true
+    dest: /etc/modprobe.d/udf.conf
+    regexp: install\s+udf
+    line: install udf /bin/false
