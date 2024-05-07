@@ -5,6 +5,11 @@
 - name: Ensure firewalld is enabled
   service: name=firewalld state=started enabled=yes
 
+- include_tasks: disable-nftables.yml
+
+- include_tasks: restrict-loopback.yml
+- include_tasks: trust-loopback.yml
+
 - name: Enable ssh access
   firewalld: service=ssh immediate=yes permanent=yes state=enabled
   notify: restart firewalld

@@ -1,0 +1,25 @@
+- name: Disable service nftables
+  systemd:
+    name: nftables.service
+    enabled: 'no'
+    state: stopped
+    masked: 'yes'
+    # rescue:
+    # - name: Intentionally ignored previous 'Disable service nftables' failure, service was already disabled
+    #   meta: noop
+ 
+- name: Unit Socket Exists - nftables.socket
+  command: systemctl -q list-unit-files nftables.socket
+  register: socket_file_exists
+  changed_when: false
+  failed_when: socket_file_exists.rc not in [0, 1]
+  check_mode: false
+
+- name: Disable socket nftables
+  systemd:
+    name: nftables.socket
+    enabled: 'no'
+    state: stopped
+    masked: 'yes'
+  when:
+  - socket_file_exists.stdout_lines is search("nftables.socket",multiline=True)
