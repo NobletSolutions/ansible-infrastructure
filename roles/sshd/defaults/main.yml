@@ -3,6 +3,8 @@ sshd_public_keys:
   - gnat-iridium
   - gnat-msi
 
+sshd_admin_user: root
+sshd_allow_root: false
 sshd_max_auth_tries_value: 4
 sshd_max_sessions: 5
 sshd_set_keepalive: 0

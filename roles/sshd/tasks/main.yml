@@ -2,8 +2,8 @@
 - fail: msg="sshd_key_path needs to be set"
   when: sshd_key_path is not defined
 
-- name: Set up authorized_keys for the root user
-  authorized_key: user=root state=present key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
+- name: Set up authorized_keys for the configured admin user user
+  authorized_key: user="{{sshd_admin_user}}" state=present key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
   with_items: '{{sshd_public_keys}}'
 
 - name: Reconfigure SSH to only allow access using key-based authentication
@@ -11,6 +11,7 @@
 
 - name: Reconfigure SSH to only allow root access using key-based authentication
   lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PermitRootLogin" line="PermitRootLogin without-password"
+  when: sshd_allow_root
   notify:
     - update aide
 
