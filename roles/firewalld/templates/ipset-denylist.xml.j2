@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ipset type="hash:{{ item.type }}">
+  <short>{{ item.name }}</short>
   <description>{{ item.description }}</description>
 {% if item.options is defined %}
 {% for option in item.options %}
