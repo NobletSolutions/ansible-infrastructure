@@ -29,3 +29,5 @@
 - include_tasks: max-auth-tries.yml
 - include_tasks: max-sessions.yml
 - include_tasks: max-start-ups.yml
+- include_tasks: verbose-logging.yml
+- include_tasks: disable-extra-auth.yml
