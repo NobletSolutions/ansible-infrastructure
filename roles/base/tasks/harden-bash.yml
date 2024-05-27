@@ -1,0 +1,90 @@
+- name: Check if umask in /etc/bashrc is already set
+  ansible.builtin.lineinfile:
+    path: /etc/bashrc
+    regexp: ^(\s*)umask\s+.*
+    state: absent
+  check_mode: true
+  changed_when: false
+  register: umask_replace
+
+- name: Replace user umask in /etc/bashrc
+  ansible.builtin.replace:
+    path: /etc/bashrc
+    regexp: ^(\s*)umask(\s+).*
+    replace: \g<1>umask\g<2>{{ base_accounts_user_umask }}
+  when:
+  - umask_replace.found > 0
+
+- name: Ensure the Default umask is Appended Correctly
+  ansible.builtin.lineinfile:
+    create: true
+    path: /etc/bashrc
+    line: umask {{ base_accounts_user_umask }}
+  when:
+  - umask_replace.found == 0
+
+- name: Check if UMASK is already set
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: ^(\s*)UMASK\s+.*
+    state: absent
+  check_mode: true
+  changed_when: false
+  register: result_umask_is_set
+  when: '"shadow-utils" in ansible_facts.packages'
+
+- name: Replace user UMASK in /etc/login.defs
+  ansible.builtin.replace:
+    path: /etc/login.defs
+    regexp: ^(\s*)UMASK(\s+).*
+    replace: \g<1>UMASK\g<2>{{ base_accounts_user_umask }}
+  when:
+  - '"shadow-utils" in ansible_facts.packages'
+  - result_umask_is_set.found > 0
+
+- name: Ensure the Default UMASK is Appended Correctly
+  ansible.builtin.lineinfile:
+    create: true
+    path: /etc/login.defs
+    line: UMASK {{ base_accounts_user_umask }}
+  when:
+  - '"shadow-utils" in ansible_facts.packages'
+  - result_umask_is_set.found == 0
+
+- name: Ensure the Default Umask is Set Correctly in /etc/profile - Locate Profile
+    Configuration Files Where umask Is Defined
+  ansible.builtin.find:
+    paths:
+    - /etc/profile.d
+    patterns:
+    - sh.local
+    - '*.sh'
+    contains: ^[\s]*umask\s+\d+
+  register: result_profile_d_files
+
+- name: Ensure the Default Umask is Set Correctly in /etc/profile - Replace Existing
+    umask Value in Files From /etc/profile.d
+  ansible.builtin.replace:
+    path: '{{ item.path }}'
+    regexp: ^(\s*)umask\s+\d+
+    replace: \1umask {{ base_accounts_user_umask }}
+  loop: '{{ result_profile_d_files.files }}'
+  register: result_umask_replaced_profile_d
+  when: result_profile_d_files.matched
+
+- name: Ensure the Default Umask is Set Correctly in /etc/profile - Ensure umask Is
+    Set in /etc/profile if Not Already Set Elsewhere
+  ansible.builtin.lineinfile:
+    create: true
+    mode: 420
+    path: /etc/profile
+    line: umask {{ base_accounts_user_umask }}
+  when: not result_profile_d_files.matched
+
+- name: Ensure the Default Umask is Set Correctly in /etc/profile - Ensure umask Value
+    For All Existing umask Definition in /etc/profile
+  ansible.builtin.replace:
+    path: /etc/profile
+    regexp: ^(\s*)umask\s+\d+
+    replace: \1umask {{ base_accounts_user_umask }}
+  register: result_umask_replaced_profile

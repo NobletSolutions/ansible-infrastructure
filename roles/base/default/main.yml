@@ -1,2 +1,0 @@
----
-base_root_mail_alias: "root@{{ansible_hostname}}"

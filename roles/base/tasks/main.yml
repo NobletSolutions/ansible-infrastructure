@@ -1,15 +1,15 @@
 ---
-- name: Install Vim
-  yum: pkg=vim state=latest
+- name: Install Additional Packages
+  ansible.builtin.package: pkg="{{ item }}" state=latest
+  with_items:
+   - "{{ base_additional_packages }}"
 
-- name: Install Haveged
-  yum: pkg=haveged state=latest
+- name: Gather the package facts
+  package_facts:
+    manager: auto
 
 - name: Ensure haveged is running
   service: name=haveged state=started enabled=yes
-
-- name: Install Chronyd
-  yum: pkg=chrony state=latest
 
 - name: Ensure chronyd is running
   service: name=chronyd state=started enabled=yes
@@ -19,3 +19,9 @@
 - include_tasks: disable-squashfs.yml
 - include_tasks: disable-udf.yml
 - include_tasks: disable-usb-storage.yml
+# - include_tasks: harden-sudo.yml
+#   when: '"sudo" in ansible_facts.packages'
+- include_tasks: password-rules.yml
+- include_tasks: harden-bash.yml
+  when: '"bash" in ansible_facts.packages'
+- include_tasks: harden-session.yml
