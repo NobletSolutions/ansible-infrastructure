@@ -2,7 +2,7 @@
 prometheus_php_fpm_exporter_firewalld_zone: prometheus-access
 prometheus_firewalld_source_ips: 
 prometheus_php_fpm_exporter_firewalld_port: 9253
-prometheus_php_fpm_exporter_listen: "127.0.0.1:9253"
+prometheus_php_fpm_exporter_listen: "127.0.0.1"
 prometheus_php_fpm_exporter_scrape_uri: 
 prometheus_php_fpm_group: nginx
 
@@ -11,3 +11,6 @@ prometheus_php_fpm_group: nginx
 #
 #prometheus_firewalld_source_ips:: 
 #   - 127.0.0.1
+
+# prometheus_php_fpm_exporter_scrape_uri: where to get stats from php-fpm
+# tcp://127.0.0.1:9000/status or  unix:///tmp/php.sock;/status

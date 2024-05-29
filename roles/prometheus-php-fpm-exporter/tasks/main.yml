@@ -1,7 +1,4 @@
 ---
-- name: Ensure we have noblet-epel.repo
-  copy: src=noblet-epel.repo dest=/etc/yum.repos.d/noblet-epel.repo owner=root group=root mode=0644
-
 - name: Install php-fpm-exporter
   yum: name=golang-github-hipages-php-fpm-exporter state=present
 
@@ -15,7 +12,7 @@
   lineinfile:
     path: /etc/sysconfig/prometheus-php-fpm-exporter
     regexp: '^PHP_FPM_WEB_LISTEN_ADDRESS='
-    line: "PHP_FPM_WEB_LISTEN_ADDRESS={{prometheus_php_fpm_exporter_listen}}"
+    line: "PHP_FPM_WEB_LISTEN_ADDRESS={{prometheus_php_fpm_exporter_listen}}:{{prometheus_php_fpm_exporter_firewalld_port}}"
 
 - name: Update sysconfig - scrape uri
   lineinfile:

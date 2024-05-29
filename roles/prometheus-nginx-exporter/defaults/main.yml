@@ -2,7 +2,7 @@
 prometheus_nginx_exporter_firewalld_zone: prometheus-access
 prometheus_firewalld_source_ips: 
 prometheus_nginx_exporter_firewalld_port: 9113
-prometheus_nginx_exporter_listen: "127.0.0.1:9113"
+prometheus_nginx_exporter_listen: "127.0.0.1"
 prometheus_nginx_exporter_scrape_host: "http://127.0.0.1"
 prometheus_nginx_exporter_scrape_port: "8008"
 prometheus_nginx_exporter_scrape_path: "/nginx_status"

@@ -1,0 +1,3 @@
+dnf_repos_additional_repos: []
+# for example
+# - { name: "noblet.repo", url: "https://yum.noblet.ca/epel/7/" }

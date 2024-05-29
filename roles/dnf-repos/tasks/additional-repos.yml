@@ -1,0 +1,4 @@
+---
+- name: Install additional url based repos
+  ansible.builtin.get_url: dest=/etc/yum.repos.d/{{item.name}} url={{item.url}}/{{item.name}} owner=root group=root mode=644 seuser=system_u serole=object_r setype=system_conf_t
+  loop: "{{ dnf_repos_additional_repos }}"

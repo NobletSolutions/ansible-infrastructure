@@ -1,52 +1,51 @@
 ---
-#This is less than ideal as it hardcodes a dep on rpm instead of using a built-in ansible module
-#Essentially we don't want to run this unless nginx is installed already
-- name: Check NGINX exists
-  command: rpm -q nginx
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
 
-- name: Ensure we have noblet-epel.repo
-  copy: src=noblet-epel.repo dest=/etc/yum.repos.d/noblet-epel.repo owner=root group=root mode=0644
+- name: Install, configure, and start nginx prometheus-exporter
+  when: "'nginx' in ansible_facts.packages"
+  block:
+    - name: Install nginx-exporter
+      yum: name=golang-github-nginxinc-nginx-prometheus-exporter state=present
 
-- name: Install nginx-exporter
-  yum: name=golang-github-nginxinc-nginx-prometheus-exporter state=present
+    - name: Install nginx status config
+      template: src=nginx.conf.j2 dest=/etc/nginx/conf.d/99-nginx-status.conf owner=root group=root mode=0644
 
-- name: Install nginx status config
-  template: src=nginx.conf.j2 dest=/etc/nginx/conf.d/99-nginx-status.conf owner=root group=root mode=0644
+    - name: Update sysconfig - listen address
+      lineinfile:
+        path: /etc/sysconfig/prometheus-nginx-exporter
+        regexp: '^LISTEN_ADDRESS='
+        line: "LISTEN_ADDRESS={{prometheus_nginx_exporter_listen}}:{{prometheus_nginx_exporter_firewalld_port}}"
 
-- name: Update sysconfig - listen address
-  lineinfile:
-    path: /etc/sysconfig/prometheus-nginx-exporter
-    regexp: '^LISTEN_ADDRESS='
-    line: "LISTEN_ADDRESS={{prometheus_nginx_exporter_listen}}"
+    - name: Update sysconfig - scrape uri
+      lineinfile:
+        path: /etc/sysconfig/prometheus-nginx-exporter
+        regexp: '^SCRAPE_URI='
+        line: "SCRAPE_URI={{prometheus_nginx_exporter_scrape_uri}}"
 
-- name: Update sysconfig - scrape uri
-  lineinfile:
-    path: /etc/sysconfig/prometheus-nginx-exporter
-    regexp: '^SCRAPE_URI='
-    line: "SCRAPE_URI={{prometheus_nginx_exporter_scrape_uri}}"
+    - name: Ensure systemd sees the service
+      systemd: daemon_reload=yes
 
-- name: Ensure systemd sees the service
-  systemd: daemon_reload=yes
+    - name: Add Firewall Zone
+      firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" state=present permanent=yes
 
-- name: Add Firewall Zone
-  firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" state=present permanent=yes
+    - name: Reload Firewalld
+      service: name=firewalld state=reloaded
 
-- name: Reload Firewalld
-  service: name=firewalld state=reloaded
+    - name: Add Sources
+      firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" source="{{item}}" state=enabled permanent=yes immediate=yes
+      loop: "{{ prometheus_firewalld_source_ips }}"
 
-- name: Add Sources
-  firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" source="{{item}}" state=enabled permanent=yes immediate=yes
-  loop: "{{ prometheus_firewalld_source_ips }}"
+    - name: Add Ports
+      firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" port="{{prometheus_nginx_exporter_firewalld_port}}/tcp" state=enabled permanent=yes immediate=yes
 
-- name: Add Ports
-  firewalld: zone="{{prometheus_nginx_exporter_firewalld_zone}}" port="{{prometheus_nginx_exporter_firewalld_port}}/tcp" state=enabled permanent=yes immediate=yes
+    # - name: Reload PHP-FPM
+    #   service: name=php-fpm enabled=yes state=restarted
 
-- name: Reload PHP-FPM
-  service: name=php-fpm enabled=yes state=restarted
+    - name: Ensure nginx is enabled and reloaded
+      service: name=nginx enabled=yes state=reloaded
 
-- name: Ensure nginx is enabled and reloaded
-  service: name=nginx enabled=yes state=reloaded
-
-- name: Ensure prometheus-nginx-exporter is enabled and started
-  service: name=prometheus-nginx-exporter enabled=yes state=restarted
+    - name: Ensure prometheus-nginx-exporter is enabled and started
+      service: name=prometheus-nginx-exporter enabled=yes state=restarted
 

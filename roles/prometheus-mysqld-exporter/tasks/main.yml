@@ -1,9 +1,6 @@
 ---
 - name: Add MySQL exporter user
-  mysql_user: name="{{prometheus_mysqld_exporter_username}}" password="{{prometheus_mysqld_exporter_password}}" login_user=root login_password="{{mysql_root_password}}" priv="*.*:PROCESS,REPLICATION CLIENT,SELECT"
-
-- name: Ensure we have noblet-epel.repo
-  copy: src=noblet-epel.repo dest=/etc/yum.repos.d/noblet-epel.repo owner=root group=root mode=0644
+  mysql_user: name="{{prometheus_mysqld_exporter_username}}" password="{{prometheus_mysqld_exporter_password}}" login_user=root login_password="{{mysql_root_password}}" priv="*.*:PROCESS,REPLICATION CLIENT,SELECT,SLAVE MONITOR"
 
 - name: Install golang-prometheus-mysqld-exporter
   yum: name=golang-github-prometheus-mysqld-exporter state=present
@@ -18,7 +15,7 @@
   lineinfile:
     path: /etc/sysconfig/prometheus-mysqld-exporter
     regexp: '^PROMETHEUS_MYSQLD_EXPORTER_LISTEN='
-    line: "PROMETHEUS_MYSQLD_EXPORTER_LISTEN={{prometheus_mysqld_exporter_listen}}"
+    line: "PROMETHEUS_MYSQLD_EXPORTER_LISTEN={{prometheus_mysqld_exporter_listen}}:{{prometheus_mysqld_exporter_firewalld_port}}"
 
 - name: Ensure systemd sees the service
   systemd: daemon_reload=yes
