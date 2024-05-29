@@ -1,0 +1,134 @@
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+
+- name: Disable chrony daemon from acting as server
+  block:
+
+  - name: Check for duplicate values
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*port\s+
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: dupes
+
+  - name: Deduplicate values from /etc/chrony.conf
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*port\s+
+      state: absent
+    when: dupes.found is defined and dupes.found > 1
+
+  - name: Insert correct line to /etc/chrony.conf
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*port\s+
+      line: port 0
+      state: present
+
+- name: Disable network management of chrony daemon
+  block:
+
+  - name: Check for duplicate values
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*cmdport\s+
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: dupes
+
+  - name: Deduplicate values from /etc/chrony.conf
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*cmdport\s+
+      state: absent
+    when: dupes.found is defined and dupes.found > 1
+
+  - name: Insert correct line to /etc/chrony.conf
+    lineinfile:
+      path: /etc/chrony.conf
+      create: true
+      regexp: ^\s*cmdport\s+
+      line: cmdport 0
+      state: present
+
+- name: XCCDF Value var_time_service_set_maxpoll # promote to variable
+  set_fact:
+    var_time_service_set_maxpoll: !!str 16
+  tags:
+    - always
+
+- name: Configure Time Service Maxpoll Interval - Check That /etc/ntp.conf Exist
+  ansible.builtin.stat:
+    path: /etc/ntp.conf
+  register: ntp_conf_exist_result
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+
+- name: Configure Time Service Maxpoll Interval - Update the Maxpoll Values in /etc/ntp.conf
+  ansible.builtin.replace:
+    path: /etc/ntp.conf
+    regexp: ^(server.*maxpoll)[ ]+[0-9]+(.*)$
+    replace: \1 {{ var_time_service_set_maxpoll }}\2
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+  - ntp_conf_exist_result.stat.exists
+
+- name: Configure Time Service Maxpoll Interval - Set the Maxpoll Values in /etc/ntp.conf
+  ansible.builtin.replace:
+    path: /etc/ntp.conf
+    regexp: (^server\s+((?!maxpoll).)*)$
+    replace: \1 maxpoll {{ var_time_service_set_maxpoll }}\n
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+  - ntp_conf_exist_result.stat.exists
+
+- name: Configure Time Service Maxpoll Interval - Check That /etc/chrony.conf Exist
+  ansible.builtin.stat:
+    path: /etc/chrony.conf
+  register: chrony_conf_exist_result
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+
+- name: Configure Time Service Maxpoll Interval - Set Chrony Path Facts
+  ansible.builtin.set_fact:
+    chrony_path: /etc/chrony.conf
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+
+- name: Configure Time Service Maxpoll Interval - Get Conf Files from {{ chrony_path| dirname }}
+  ansible.builtin.find:
+    path: '{{ chrony_path | dirname }}'
+    patterns: '*.conf'
+    file_type: file
+  register: chrony_conf_files
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+
+- name: Configure Time Service Maxpoll Interval - Update the Maxpoll Values in /etc/chrony.conf
+  ansible.builtin.replace:
+    path: '{{ item.path }}'
+    regexp: ^((?:server|pool|peer).*maxpoll)[ ]+[0-9]+(.*)$
+    replace: \1 {{ var_time_service_set_maxpoll }}\2
+  loop: '{{ chrony_conf_files.files }}'
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+  - chrony_conf_files.matched
+
+- name: Configure Time Service Maxpoll Interval - Set the Maxpoll Values in /etc/chrony.conf
+  ansible.builtin.replace:
+    path: '{{ item.path }}'
+    regexp: (^(?:server|pool|peer)\s+((?!maxpoll).)*)$
+    replace: \1 maxpoll {{ var_time_service_set_maxpoll }}\n
+  loop: '{{ chrony_conf_files.files }}'
+  when:
+  - ( "chrony" in ansible_facts.packages or "ntp" in ansible_facts.packages )
+  - chrony_conf_files.matched
