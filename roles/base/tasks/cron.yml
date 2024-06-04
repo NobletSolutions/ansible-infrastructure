@@ -1,0 +1,86 @@
+- name: Find /etc/cron.d/ file(s)
+  command: 'find -H /etc/cron.d/ -maxdepth 1 -perm /u+s,g+xwrs,o+xwrt  -type d'
+  register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Set permissions for /etc/cron.d/ file(s)
+  file:
+    path: '{{ item }}'
+    mode: u-s,g-xwrs,o-xwrt
+    state: directory
+  with_items:
+  - '{{ files_found.stdout_lines }}'
+
+- name: Find /etc/cron.daily/ file(s)
+  command: 'find -H /etc/cron.daily/ -maxdepth 1 -perm /u+s,g+xwrs,o+xwrt  -type d'
+  register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Set permissions for /etc/cron.daily/ file(s)
+  file:
+    path: '{{ item }}'
+    mode: u-s,g-xwrs,o-xwrt
+    state: directory
+  with_items:
+  - '{{ files_found.stdout_lines }}'
+
+- name: Find /etc/cron.hourly/ file(s)
+  command: 'find -H /etc/cron.hourly/ -maxdepth 1 -perm /u+s,g+xwrs,o+xwrt  -type d'
+  register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Set permissions for /etc/cron.hourly/ file(s)
+  file:
+    path: '{{ item }}'
+    mode: u-s,g-xwrs,o-xwrt
+    state: directory
+  with_items:
+  - '{{ files_found.stdout_lines }}'
+
+- name: Find /etc/cron.monthly/ file(s)
+  command: 'find -H /etc/cron.monthly/ -maxdepth 1 -perm /u+s,g+xwrs,o+xwrt  -type d'
+  register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Set permissions for /etc/cron.monthly/ file(s)
+  file:
+    path: '{{ item }}'
+    mode: u-s,g-xwrs,o-xwrt
+    state: directory
+  with_items:
+  - '{{ files_found.stdout_lines }}'
+
+- name: Find /etc/cron.weekly/ file(s)
+  command: 'find -H /etc/cron.weekly/ -maxdepth 1 -perm /u+s,g+xwrs,o+xwrt  -type d '
+  register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Set permissions for /etc/cron.weekly/ file(s)
+  file:
+    path: '{{ item }}'
+    mode: u-s,g-xwrs,o-xwrt
+    state: directory
+  with_items:
+  - '{{ files_found.stdout_lines }}'
+
+- name: Test for existence /etc/crontab
+  stat:
+    path: /etc/crontab
+  register: file_exists
+
+- name: Ensure permission u-xs,g-xwrs,o-xwrt on /etc/crontab
+  file:
+    path: /etc/crontab
+    mode: u-xs,g-xwrs,o-xwrt
+  when:
+  - file_exists.stat is defined and file_exists.stat.exists

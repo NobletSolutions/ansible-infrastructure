@@ -1,0 +1,49 @@
+
+- name: Set accounts logon fail delay
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^FAIL_DELAY
+    line: FAIL_DELAY {{ base_accounts_fail_delay }}
+    create: true
+
+- name: Find /etc/security/limits.d files containing maxlogins configuration
+  find:
+    paths: /etc/security/limits.d
+    contains: ^[\s]*\*[\s]+(?:(?:hard)|(?:-))[\s]+maxlogins
+    patterns: '*.conf'
+  register: maxlogins
+
+- name: Limit the Number of Concurrent Login Sessions Allowed Per User in files from
+    limits.d
+  replace:
+    dest: '{{ item.path }}'
+    regexp: ^#?\*.*maxlogins.*
+    replace: '*          hard    maxlogins     {{ base_accounts_max_concurrent_login_sessions }}'
+  with_items:
+  - '{{ maxlogins.files }}'
+
+- name: Limit the Number of Concurrent Login Sessions Allowed Per User
+  lineinfile:
+    state: present
+    dest: /etc/security/limits.conf
+    insertbefore: ^# End of file
+    regexp: ^#?\*.*maxlogins
+    line: '*          hard    maxlogins     {{ base_accounts_max_concurrent_login_sessions }}'
+    create: true
+  when:
+  - maxlogins.matched == 0
+
+- name: Correct any occurrence of TMOUT in /etc/profile
+  replace:
+    path: /etc/profile
+    regexp: ^[^#].*TMOUT=.*
+    replace: typeset -xr TMOUT={{ base_accounts_tmout }}
+  register: profile_replaced
+
+- name: Set Interactive Session Timeout
+  lineinfile:
+    path: /etc/profile.d/tmout.sh
+    create: true
+    regexp: TMOUT=
+    line: typeset -xr TMOUT={{ base_accounts_tmout }}
+    state: present

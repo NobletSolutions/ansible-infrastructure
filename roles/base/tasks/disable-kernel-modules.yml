@@ -1,0 +1,7 @@
+- name: Ensure kernel module '{{item}}' is disabled
+  lineinfile:
+    create: true
+    dest: "/etc/modprobe.d/{{item}}.conf"
+    regexp: "install\\s+{{item}}"
+    line: "install {{item}} /bin/false"
+  loop: "{{ base_disabled_kernel_modules }}"

@@ -8,9 +8,25 @@ base_additional_packages:
 base_account_disable_post_pw_expiration: 30
 base_accounts_maximum_age_login_defs: 365
 base_accounts_minimum_age_login_defs: 1
-base_accounts_user_umask: "027"
 base_accounts_timeout: "900"
 base_password_pam_minlen: "14"
 base_password_pam_minclass: "4"
 base_sudo_logfile: "/var/log/sudo.log"
 base_sudo_timestamp_timeout: 5
+base_authselect_hardening: true
+base_disabled_kernel_modules:
+  - cramfs
+  - squashfs
+  - udf
+  - usb-storage
+  - atm
+  - can
+  - firewire-core
+  - sctp
+  - tipc
+  - bluetooth
+
+base_accounts_user_umask: "077"
+base_accounts_fail_delay: "4"
+base_accounts_max_concurrent_login_sessions: "10"
+base_accounts_tmout: "600"

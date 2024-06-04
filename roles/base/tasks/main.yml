@@ -1,13 +1,4 @@
 ---
-- name: Install Additional Packages
-  ansible.builtin.package: pkg="{{ item }}" state=latest
-  with_items:
-   - "{{ base_additional_packages }}"
-
-- name: Gather the package facts
-  package_facts:
-    manager: auto
-
 - name: Ensure haveged is running
   service: name=haveged state=started enabled=yes
 
@@ -16,12 +7,14 @@
 
 - include_tasks: protect-dev-shm.yml
 - include_tasks: randomize-mem.yml
-- include_tasks: disable-squashfs.yml
-- include_tasks: disable-udf.yml
-- include_tasks: disable-usb-storage.yml
+- include_tasks: disable-kernel-modules.yml
+- include_tasks: systemd.yml
+- include_tasks: restrict-dmesg.yml
+- include_tasks: restrict-umask.yml
+- include_tasks: restrict-user-sessions.yml
+- include_tasks: cron.yml
 # - include_tasks: harden-sudo.yml
 #   when: '"sudo" in ansible_facts.packages'
 - include_tasks: password-rules.yml
-- include_tasks: harden-bash.yml
   when: '"bash" in ansible_facts.packages'
 - include_tasks: harden-session.yml

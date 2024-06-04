@@ -23,6 +23,29 @@
   when:
   - umask_replace.found == 0
 
+- name: Check if umask in /etc/csh.cshrc is already set
+  ansible.builtin.lineinfile:
+    path: /etc/csh.cshrc
+    regexp: ^(\s*)umask\s+.*
+    state: absent
+  check_mode: true
+  changed_when: false
+  register: umask_replace
+
+- name: Replace user umask in /etc/csh.cshrc
+  ansible.builtin.replace:
+    path: /etc/csh.cshrc
+    regexp: ^(\s*)umask(\s+).*
+    replace: \g<1>umask\g<2>{{ base_accounts_user_umask }}
+  when: umask_replace.found > 0
+
+- name: Ensure the Default umask is Appended Correctly
+  ansible.builtin.lineinfile:
+    create: true
+    path: /etc/csh.cshrc
+    line: umask {{ base_accounts_user_umask }}
+  when: umask_replace.found == 0
+
 - name: Check if UMASK is already set
   ansible.builtin.lineinfile:
     path: /etc/login.defs
@@ -31,7 +54,6 @@
   check_mode: true
   changed_when: false
   register: result_umask_is_set
-  when: '"shadow-utils" in ansible_facts.packages'
 
 - name: Replace user UMASK in /etc/login.defs
   ansible.builtin.replace:
@@ -39,7 +61,6 @@
     regexp: ^(\s*)UMASK(\s+).*
     replace: \g<1>UMASK\g<2>{{ base_accounts_user_umask }}
   when:
-  - '"shadow-utils" in ansible_facts.packages'
   - result_umask_is_set.found > 0
 
 - name: Ensure the Default UMASK is Appended Correctly
@@ -48,7 +69,6 @@
     path: /etc/login.defs
     line: UMASK {{ base_accounts_user_umask }}
   when:
-  - '"shadow-utils" in ansible_facts.packages'
   - result_umask_is_set.found == 0
 
 - name: Ensure the Default Umask is Set Correctly in /etc/profile - Locate Profile

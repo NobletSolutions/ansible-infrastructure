@@ -1,0 +1,6 @@
+- name: Ensure kernel module 'atm' is disabled
+  lineinfile:
+    create: true
+    dest: /etc/modprobe.d/atm.conf
+    regexp: install\s+atm
+    line: install atm /bin/false

@@ -1,0 +1,82 @@
+---
+- name: Disable Ctrl-Alt-Del Burst Action
+  lineinfile:
+    dest: /etc/systemd/system.conf
+    state: present
+    regexp: ^CtrlAltDelBurstAction
+    line: CtrlAltDelBurstAction=none
+
+- name: Disable Ctrl-Alt-Del Reboot Activation
+  systemd:
+    name: ctrl-alt-del.target
+    force: true
+    masked: true
+    state: stopped
+
+- name: Block Disable service debug-shell
+  block:
+
+  - name: Disable service debug-shell
+    block:
+
+    - name: Disable service debug-shell
+      systemd:
+        name: debug-shell.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+    rescue:
+
+    - name: Intentionally ignored previous 'Disable service debug-shell' failure,
+        service was already disabled
+      meta: noop
+
+- name: Unit Socket Exists - debug-shell.socket
+  command: systemctl -q list-unit-files debug-shell.socket
+  register: socket_file_exists
+  changed_when: false
+  failed_when: socket_file_exists.rc not in [0, 1]
+  check_mode: false
+
+- name: Disable socket debug-shell
+  systemd:
+    name: debug-shell.socket
+    enabled: 'no'
+    state: stopped
+    masked: 'yes'
+  when:
+  - socket_file_exists.stdout_lines is search("debug-shell.socket",multiline=True)
+
+- name: Block Disable service kdump
+  block:
+
+  - name: Disable service kdump
+    block:
+
+    - name: Disable service kdump
+      systemd:
+        name: kdump.service
+        enabled: 'no'
+        state: stopped
+        masked: 'yes'
+    rescue:
+
+    - name: Intentionally ignored previous 'Disable service kdump' failure, service
+        was already disabled
+      meta: noop
+
+- name: Unit Socket Exists - kdump.socket
+  command: systemctl -q list-unit-files kdump.socket
+  register: socket_file_exists
+  changed_when: false
+  failed_when: socket_file_exists.rc not in [0, 1]
+  check_mode: false
+
+- name: Disable socket kdump
+  systemd:
+    name: kdump.socket
+    enabled: 'no'
+    state: stopped
+    masked: 'yes'
+  when:
+  - socket_file_exists.stdout_lines is search("kdump.socket",multiline=True)
