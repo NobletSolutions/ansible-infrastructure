@@ -1,0 +1,92 @@
+- name: List /etc/sysctl.d/*.conf files
+  find:
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
+    - /usr/lib/sysctl.d/
+    contains: ^[\s]*net.ipv4.conf.all.forwarding.*$
+    patterns: '*.conf'
+    file_type: any
+  register: find_sysctl_d
+
+- name: Comment out any occurrences of net.ipv4.conf.all.forwarding from config files
+  replace:
+    path: '{{ item.path }}'
+    regexp: ^[\s]*net.ipv4.conf.all.forwarding
+    replace: '#net.ipv4.conf.all.forwarding'
+  loop: '{{ find_sysctl_d.files }}'
+
+- name: XCCDF Value sysctl_net_ipv4_conf_all_forwarding_value # promote to variable
+  set_fact:
+    sysctl_net_ipv4_conf_all_forwarding_value: !!str 0
+
+- name: Ensure sysctl net.ipv4.conf.all.forwarding is set
+  sysctl:
+    name: net.ipv4.conf.all.forwarding
+    value: '{{ sysctl_net_ipv4_conf_all_forwarding_value }}'
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true
+
+- name: List /etc/sysctl.d/*.conf files
+  find:
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
+    - /usr/lib/sysctl.d/
+    contains: ^[\s]*net.ipv6.conf.all.forwarding.*$
+    patterns: '*.conf'
+    file_type: any
+  register: find_sysctl_d
+
+- name: Comment out any occurrences of net.ipv6.conf.all.forwarding from config files
+  replace:
+    path: '{{ item.path }}'
+    regexp: ^[\s]*net.ipv6.conf.all.forwarding
+    replace: '#net.ipv6.conf.all.forwarding'
+  loop: '{{ find_sysctl_d.files }}'
+
+- name: List /etc/sysctl.d/*.conf files
+  find:
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
+    - /usr/lib/sysctl.d/
+    contains: ^[\s]*net.ipv6.conf.all.forwarding.*$
+    patterns: '*.conf'
+    file_type: any
+  register: find_sysctl_d
+
+- name: Comment out any occurrences of net.ipv6.conf.all.forwarding from config files
+  replace:
+    path: '{{ item.path }}'
+    regexp: ^[\s]*net.ipv6.conf.all.forwarding
+    replace: '#net.ipv6.conf.all.forwarding'
+  loop: '{{ find_sysctl_d.files }}'
+
+- name: XCCDF Value sysctl_net_ipv6_conf_all_forwarding_value # promote to variable
+  set_fact:
+    sysctl_net_ipv6_conf_all_forwarding_value: !!str 0
+
+- name: Ensure sysctl net.ipv6.conf.all.forwarding is set
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '{{ sysctl_net_ipv6_conf_all_forwarding_value }}'
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true
+
+- name: XCCDF Value sysctl_net_ipv6_conf_all_forwarding_value # promote to variable
+  set_fact:
+    sysctl_net_ipv6_conf_all_forwarding_value: !!str 0
+
+- name: Ensure sysctl net.ipv6.conf.all.forwarding is set
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '{{ sysctl_net_ipv6_conf_all_forwarding_value }}'
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true

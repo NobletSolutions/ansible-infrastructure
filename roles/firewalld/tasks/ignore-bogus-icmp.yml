@@ -1,0 +1,31 @@
+- name: List /etc/sysctl.d/*.conf files
+  find:
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
+    - /usr/local/lib/sysctl.d/
+    - /usr/lib/sysctl.d/
+    contains: ^[\s]*net.ipv4.icmp_ignore_bogus_error_responses.*$
+    patterns: '*.conf'
+    file_type: any
+  register: find_sysctl_d
+
+- name: Comment out any occurrences of net.ipv4.icmp_ignore_bogus_error_responses
+    from config files
+  replace:
+    path: '{{ item.path }}'
+    regexp: ^[\s]*net.ipv4.icmp_ignore_bogus_error_responses
+    replace: '#net.ipv4.icmp_ignore_bogus_error_responses'
+  loop: '{{ find_sysctl_d.files }}'
+
+- name: XCCDF Value sysctl_net_ipv4_icmp_ignore_bogus_error_responses_value # promote to variable
+  set_fact:
+    sysctl_net_ipv4_icmp_ignore_bogus_error_responses_value: !!str 1
+
+- name: Ensure sysctl net.ipv4.icmp_ignore_bogus_error_responses is set
+  sysctl:
+    name: net.ipv4.icmp_ignore_bogus_error_responses
+    value: '{{ sysctl_net_ipv4_icmp_ignore_bogus_error_responses_value }}'
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    reload: true

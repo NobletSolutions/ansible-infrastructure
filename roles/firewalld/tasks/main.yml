@@ -6,9 +6,15 @@
   service: name=firewalld state=started enabled=yes
 
 - include_tasks: disable-nftables.yml
-
 - include_tasks: restrict-loopback.yml
 - include_tasks: trust-loopback.yml
+- include_tasks: disable-forwarding.yml
+- include_tasks: disable-icmp-redirects.yml
+- include_tasks: disable-source-routing.yml
+- include_tasks: ignore-bogus-icmp.yml
+- include_tasks: log-martian-packets.yml
+- include_tasks: use-reverse-path-filtering.yml
+- include_tasks: use-syncookies.yml
 
 - name: Enable ssh access
   firewalld: service=ssh immediate=yes permanent=yes state=enabled
