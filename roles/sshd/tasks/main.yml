@@ -24,6 +24,9 @@
 - include_tasks: disable-host-auth.yml
 - include_tasks: disable-rhosts.yml
 - include_tasks: disallow-env-override.yml
+- include_tasks: disable-user-known-hosts.yml
+- include_tasks: disable-x11-forwarding.yml
+- include_tasks: disable-remote-x11-connect.yml
 - include_tasks: login-grace-time.yml
 - include_tasks: max-client.yml
 - include_tasks: max-auth-tries.yml
@@ -31,3 +34,6 @@
 - include_tasks: max-start-ups.yml
 - include_tasks: verbose-logging.yml
 - include_tasks: disable-extra-auth.yml
+# - include_tasks: client-alive.yml
+- include_tasks: delay-compression.yml
+- include_tasks: use-priv-separation.yml
