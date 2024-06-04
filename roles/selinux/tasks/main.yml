@@ -1,0 +1,186 @@
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+
+- name: Set architecture for audit delete_module tasks
+  set_fact:
+    audit_arch: b64
+  when:
+  - '"audit" in ansible_facts.packages'
+  - ansible_architecture == "x86_64"
+
+# Record Events that Modify the System's Discretionary Access Controls
+- include_tasks: record-dac-changes.yml
+  vars:
+    syscalls:
+      - chmod
+      - fchmod
+      - fchmodat
+    syscall_grouping:
+      - chmod
+      - fchmod
+      - fchmodat
+
+- include_tasks: record-dac-changes.yml
+  vars:
+    syscalls:
+      - chown
+      - fchown
+      - fchownat
+      - lchown
+    syscall_grouping:
+      - chown
+      - fchown
+      - fchownat
+      - lchown
+
+- include_tasks: record-dac-changes.yml
+  vars:
+    syscalls:
+      - fremovexattr
+      - fsetxattr
+      - lremovexattr
+      - lsetxattr
+    syscall_grouping:
+      - fremovexattr
+      - lremovexattr
+      - removexattr
+      - fsetxattr
+      - lsetxattr
+      - setxattr
+
+- include_tasks: record-dac-changes.yml
+  vars:
+    syscalls:
+      - removexattr
+      - setxattr
+    syscall_grouping:
+      - fremovexattr
+      - lremovexattr
+      - removexattr
+      - fsetxattr
+      - lsetxattr
+      - setxattr
+
+- include_tasks: record-dac-changes.yml
+  vars:
+    syscalls:
+      - umount
+      - umount2
+    syscall_grouping: []
+
+# Record xecution Attempts to Run ACL Privileged Commands
+- include_tasks: record-acl-priv-commands.yml
+
+# Record Execution Attempts to Run SELinux Privileged Commands
+- include_tasks: record-selinux-priv-commands.yml
+
+# Record File Deletion Events by User
+- include_tasks: record-user-file-deletion.yml
+
+# Record Unauthorized Access Attempts Events to Files (unsuccessful)
+- include_tasks: record-unauth-file-access.yml
+
+# Record Information on Kernel Modules Loading and Unloading
+- include_tasks: record-kernel-module.yml
+
+# Record Attempts to Alter Logon and Logout Events
+- include_tasks: record-login-out.yml
+
+# Record Information on the Use of Privileged Commands
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/init
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/poweroff
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/reboot
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/shutdown
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/chage
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/chsh
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/crontab
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/gpasswd
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/kmod
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/mount
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/newgrp
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/pam_timestamp_check
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/passwd
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/postdrop
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/postqueue
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/libexec/openssh/ssh-keysign
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/su
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/sudo
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/sudoedit
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/bin/umount
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/unix_chkpwd
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/unix_update
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/userhelper
+
+- include_tasks: record-priv-commands.yml
+  vars:
+    selinux_item_path: /usr/sbin/usermod
+

@@ -1,0 +1,1 @@
+selinux_accounts_passwords_pam_faillock_dir: "/var/log/faillock"
