@@ -1,0 +1,6 @@
+packages_additional_packages:
+  - vim
+  - haveged
+  - chrony
+  - rng-tools
+  - policycoreutils-python-utils
