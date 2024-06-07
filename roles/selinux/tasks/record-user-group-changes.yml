@@ -1,0 +1,65 @@
+- name: Check if watch rule for {{ selinux_item_to_monitor }} already exists in /etc/audit/rules.d/
+  find:
+    paths: /etc/audit/rules.d
+    contains: ^\s*-w\s+{{ selinux_item_to_monitor }}\s+-p\s+wa(\s|$)+
+    patterns: '*.rules'
+  register: find_existing_watch_rules_d
+  when:
+  - '"audit" in ansible_facts.packages'
+
+- name: Search /etc/audit/rules.d for other rules with specified key audit_rules_usergroup_modification
+  find:
+    paths: /etc/audit/rules.d
+    contains: ^.*(?:-F key=|-k\s+)audit_rules_usergroup_modification$
+    patterns: '*.rules'
+  register: find_watch_key
+  when:
+  - '"audit" in ansible_facts.packages'
+  - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
+
+- name: Use /etc/audit/rules.d/audit_rules_usergroup_modification.rules as the recipient for the rule
+  set_fact:
+    all_files:
+    - /etc/audit/rules.d/audit_rules_usergroup_modification.rules
+  when:
+  - '"audit" in ansible_facts.packages'
+  - find_watch_key.matched is defined and find_watch_key.matched == 0 and find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
+
+- name: Use matched file as the recipient for the rule
+  set_fact:
+    all_files:
+    - '{{ find_watch_key.files | map(attribute=''path'') | list | first }}'
+  when:
+  - '"audit" in ansible_facts.packages'
+  - find_watch_key.matched is defined and find_watch_key.matched > 0 and find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
+
+- name: Add watch rule for {{ selinux_item_to_monitor }} in /etc/audit/rules.d/
+  lineinfile:
+    path: '{{ all_files[0] }}'
+    line: -w {{ selinux_item_to_monitor }} -p wa -k audit_rules_usergroup_modification
+    create: true
+    mode: '0640'
+  when:
+  - '"audit" in ansible_facts.packages'
+  - find_existing_watch_rules_d.matched is defined and find_existing_watch_rules_d.matched == 0
+
+- name: Check if watch rule for {{ selinux_item_to_monitor }} already exists in /etc/audit/audit.rules
+  find:
+    paths: /etc/audit/
+    contains: ^\s*-w\s+{{ selinux_item_to_monitor }}\s+-p\s+wa(\s|$)+
+    patterns: audit.rules
+  register: find_existing_watch_audit_rules
+  when:
+  - '"audit" in ansible_facts.packages'
+
+- name: Add watch rule for {{ selinux_item_to_monitor }} in /etc/audit/audit.rules
+  lineinfile:
+    line: -w {{ selinux_item_to_monitor }} -p wa -k audit_rules_usergroup_modification
+    state: present
+    dest: /etc/audit/audit.rules
+    create: true
+    mode: '0640'
+  when:
+  - '"audit" in ansible_facts.packages'
+  - find_existing_watch_audit_rules.matched is defined and find_existing_watch_audit_rules.matched == 0
+
