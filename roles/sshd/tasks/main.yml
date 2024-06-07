@@ -2,7 +2,7 @@
 - fail: msg="sshd_key_path needs to be set"
   when: sshd_key_path is not defined
 
-- name: Set up authorized_keys for the configured admin user user
+- name: Set up authorized_keys for the configured admin user
   authorized_key: user="{{sshd_admin_user}}" state=present key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
   with_items: '{{sshd_public_keys}}'
 
@@ -19,6 +19,9 @@
   service: name=sshd enabled=yes
   notify:
     - restart sshd
+
+- include_tasks: configure-additional-admins.yml
+  when: sshd_additional_admins | length | int > 0
 
 - include_tasks: disable-empty-pass.yml
 - include_tasks: disable-host-auth.yml
@@ -37,3 +40,6 @@
 # - include_tasks: client-alive.yml
 - include_tasks: delay-compression.yml
 - include_tasks: use-priv-separation.yml
+- include_tasks: frequent-key-regen.yml
+- include_tasks: print-last-log.yml
+- include_tasks: enable-strict-mode-checking.yml

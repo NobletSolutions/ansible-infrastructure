@@ -13,3 +13,9 @@ sshd_set_maxstartups: "10:30:60"
 sshd_set_keepalive: "1"
 sshd_disable_compression: "delayed"
 sshd_priv_separation: "sandbox"
+sshd_rekey_limit_size: "1G"
+sshd_rekey_limit_time: "1h"
+
+sshd_additional_admins: []
+# Needs to be an array of hashes
+# - { name: gnat, public_keys: [gnat-iridium, gnat-msi] }
