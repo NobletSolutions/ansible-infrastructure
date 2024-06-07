@@ -30,3 +30,5 @@ base_accounts_user_umask: "077"
 base_accounts_fail_delay: "4"
 base_accounts_max_concurrent_login_sessions: "10"
 base_accounts_tmout: "600"
+
+base_selinux_hardening: true
