@@ -1,3 +1,8 @@
+- name: XCCDF Value sysctl_net_ipv6_conf_all_forwarding_value # promote to variable
+  set_fact:
+    sysctl_net_ipv6_conf_all_forwarding_value: !!str 0
+    sysctl_net_ipv4_conf_all_forwarding_value: !!str 0
+
 - name: List /etc/sysctl.d/*.conf files
   find:
     paths:
@@ -16,10 +21,6 @@
     regexp: ^[\s]*net.ipv4.conf.all.forwarding
     replace: '#net.ipv4.conf.all.forwarding'
   loop: '{{ find_sysctl_d.files }}'
-
-- name: XCCDF Value sysctl_net_ipv4_conf_all_forwarding_value # promote to variable
-  set_fact:
-    sysctl_net_ipv4_conf_all_forwarding_value: !!str 0
 
 - name: Ensure sysctl net.ipv4.conf.all.forwarding is set
   sysctl:
@@ -67,10 +68,6 @@
     replace: '#net.ipv6.conf.all.forwarding'
   loop: '{{ find_sysctl_d.files }}'
 
-- name: XCCDF Value sysctl_net_ipv6_conf_all_forwarding_value # promote to variable
-  set_fact:
-    sysctl_net_ipv6_conf_all_forwarding_value: !!str 0
-
 - name: Ensure sysctl net.ipv6.conf.all.forwarding is set
   sysctl:
     name: net.ipv6.conf.all.forwarding
@@ -78,10 +75,6 @@
     sysctl_file: /etc/sysctl.conf
     state: present
     reload: true
-
-- name: XCCDF Value sysctl_net_ipv6_conf_all_forwarding_value # promote to variable
-  set_fact:
-    sysctl_net_ipv6_conf_all_forwarding_value: !!str 0
 
 - name: Ensure sysctl net.ipv6.conf.all.forwarding is set
   sysctl:
