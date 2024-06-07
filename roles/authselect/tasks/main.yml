@@ -1,0 +1,5 @@
+- include_tasks: limit-password-reuse-password-auth.yml
+- include_tasks: limit-password-reuse-system-auth.yml
+- include_tasks: log-lockouts.yml
+- include_tasks: lock-failed-password.yml
+- include_tasks: failed-password-interval.yml
