@@ -1,4 +1,5 @@
-packages_additional_packages:
+packages_additional_packages: []
+packages_default_packages:
   - vim
   - haveged
   - chrony
