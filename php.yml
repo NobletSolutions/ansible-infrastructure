@@ -1,6 +1,7 @@
 ---
 - hosts: '{{target}}'
-  user: root
+  user: "{{ default_admin_user|default('root')}}"
+  become: "{{ default_admin_user_become|default('false')}}"
   roles:
     - base
     - php 

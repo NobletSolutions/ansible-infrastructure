@@ -1,6 +1,6 @@
 ---
-- hosts: '{{ target }}'
+- hosts: '{{target}}'
   user: almalinux
   become: true
   roles:
-    - base
+    - chrony
