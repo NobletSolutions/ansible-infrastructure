@@ -9,22 +9,18 @@
   when: php_version == 8.3 and ansible_distribution_major_version|int < 23
 
 - name: Install php
-  yum: 
+  ansible.builtin.dnf:
     state: latest
-    name:
-      - php-fpm
-      - php-gd
-      - php-intl
-      - php-pdo
-      - php-cli
-      - php-process
-      - php-xml
-      - php-mysql
-      - php-mbstring
-      - php-bcmath
-      - php-gmp
-      - php-pecl-imagick
-      - php-pecl-zip
+    name: "{{ item }}"
+  loop: "{{ php_packages }}"
+  notify:
+    - update aide
+
+- name: Install additional php packages
+  ansible.builtin.dnf:
+    state: latest
+    name: "{{ item }}"
+  loop: "{{ php_additional_packages }}"
   notify:
     - update aide
 
