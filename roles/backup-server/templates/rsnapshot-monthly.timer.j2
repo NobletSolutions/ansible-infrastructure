@@ -1,0 +1,9 @@
+[Unit]
+Description=Rsnapshot monthly timer: {{ item.name }}
+
+[Timer]
+OnCalendar=*-*-01 03:00:00
+RandomizedDelaySec=2700
+
+[Install]
+WantedBy=multi-user.target

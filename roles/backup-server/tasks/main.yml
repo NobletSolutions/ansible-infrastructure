@@ -1,6 +1,8 @@
 ---
 - name: Install required packages
-  yum: pkg={{item}} state=present
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
   with_items:
     - rsnapshot
     - rsync
@@ -9,25 +11,80 @@
   template: src=common.j2 dest=/etc/rsnapshot-common.conf owner=root group=root mode=644
 
 - name: Setup backup target directory
-  file: path=/srv/rsnapshots state=directory owner=root group=root mode=700
+  file: path="{{backup_server_directory}}" state=directory owner=root group=root mode=700
 
 - name: Create root SSH public key
   user: name=root generate_ssh_key=yes
 
-- name: Create main directory structure
-  file: path="/srv/rsnapshots/{{item.name}}/.sync" recurse=yes state=directory
-  with_items: '{{backup_server_configs}}'
+# - name: Create main directory structure
+#   file: path="{{backup_server_directory}}/{{item.name}}/.sync" recurse=yes state=directory
+#   with_items: "{{ backup_server_configs }}"
 
 - name: Create config
-  template: src=rsnapshot.conf.j2 dest="/srv/rsnapshots/{{item.name}}/rsnapshot.conf"
-  with_items: '{{backup_server_configs}}'
+  template: src=rsnapshot.conf.j2 dest="{{backup_server_directory}}/{{item.name}}/rsnapshot.conf"
+  with_items: "{{ backup_server_configs }}"
 
 - name: Add exclude_file.txt
-  template: src=exclude.j2 dest="/srv/rsnapshots/{{item.name}}/exclude_file.txt"
-  with_items: '{{backup_server_configs}}'
+  template: src=exclude.j2 dest="{{backup_server_directory}}/{{item.name}}/exclude_file.txt"
+  with_items: "{{ backup_server_configs }}"
 
-- name: Configure crontab
-  template: src=crontab.j2 dest="/etc/cron.d/{{item.name}}-crontab" owner=root group=root mode=644
-  with_items: '{{backup_server_configs}}'
-  notify:
-    - update aide
+- name: Scan for SSH host keys.
+  ansible.builtin.command:
+    cmd: "ssh-keyscan {{item.host}} 2>/dev/null"
+  changed_when: False
+  register: ssh_scan
+  with_items: "{{ backup_server_configs }}"
+  when: item.host is defined
+
+- name: Add SSH host keys to known_hosts
+  ansible.builtin.known_hosts:
+    state: present
+    key: "{{ item.1 }}"
+    name: "{{ item.0.item.host }}"
+    hash_host: no
+  loop: "{{ q('ansible.builtin.subelements', ssh_scan.results, 'stdout_lines', {'skip_missing': True}) }}"
+
+- name: Add Systemd Rsnapshot Services
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: 644
+  with_items: "{{ backup_server_systemd_services }}"
+
+- name: Add Systemd Rsnapshot Hourly Timers
+  ansible.builtin.template:
+    src: rsnapshot-hourly.timer.j2
+    dest: "/etc/systemd/system/rsnapshot-hourly@{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: 644
+  with_items: "{{ backup_server_configs }}"
+
+- name: Add Systemd Rsnapshot Daily Timers
+  ansible.builtin.template:
+    src: rsnapshot-daily.timer.j2
+    dest: "/etc/systemd/system/rsnapshot-daily@{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: 644
+  with_items: "{{ backup_server_configs }}"
+
+- name: Add Systemd Rsnapshot Weekly Timers
+  ansible.builtin.template:
+    src: rsnapshot-weekly.timer.j2
+    dest: "/etc/systemd/system/rsnapshot-weekly@{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: 644
+  with_items: "{{ backup_server_configs }}"
+
+- name: Add Systemd Rsnapshot Monthly Timers
+  ansible.builtin.template:
+    src: rsnapshot-monthly.timer.j2
+    dest: "/etc/systemd/system/rsnapshot-monthly@{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: 644
+  with_items: "{{ backup_server_configs }}"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run %i Monthly rsnapshot
+
+[Service]
+WorkingDirectory={{backup_server_directory}}
+Type=oneshot
+ExecStart=rsnapshot -c {{backup_server_directory}}/%i/rsnapshot.conf monthly
+
+[Install]
+WantedBy=multi-user.target

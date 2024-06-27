@@ -1,0 +1,9 @@
+[Unit]
+Description=Rsnapshot hourly timer: {{ item.name }}
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=2700
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run %i Hourly rsnapshot
+
+[Service]
+WorkingDirectory={{backup_server_directory}}
+Type=oneshot
+ExecStart=rsnapshot -c {{backup_server_directory}}/%i/rsnapshot.conf sync
+ExecStart=rsnapshot -c {{backup_server_directory}}/%i/rsnapshot.conf hourly
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Rsnapshot weekly timer: {{ item.name }}
+
+[Timer]
+OnCalendar=Sat *-*-* 05:00:00
+RandomizedDelaySec=2700
+
+[Install]
+WantedBy=multi-user.target

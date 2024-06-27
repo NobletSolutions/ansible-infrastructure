@@ -1,16 +1,16 @@
 include_conf	/etc/rsnapshot-common.conf
 
-snapshot_root	/srv/rsnapshots/{{item.name}}/
+snapshot_root	{{backup_server_directory}}/{{item.name}}/
 
 interval	hourly	{{backup_server_hourly}}
 interval	daily	{{backup_server_daily}}
 interval	weekly	{{backup_server_weekly}}
 interval	monthly	{{backup_server_monthly}}
 
-logfile	/srv/rsnapshots/{{item.name}}/rsnapshot.log
-lockfile	/srv/rsnapshots/{{item.name}}/rsnapshot.pid
+logfile	{{backup_server_directory}}/{{item.name}}/rsnapshot.log
+lockfile	{{backup_server_directory}}/{{item.name}}/rsnapshot.pid
 
-exclude_file	/srv/rsnapshots/{{item.name}}/exclude_file.txt
+exclude_file	{{backup_server_directory}}/{{item.name}}/exclude_file.txt
 
 # {{ item.name }}
 {% for args in item.points %}
