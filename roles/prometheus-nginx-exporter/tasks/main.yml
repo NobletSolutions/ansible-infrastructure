@@ -39,7 +39,7 @@
         permanent: true
         immediate: true
         state: enabled
-        rich_rule: "rule family=ipv4 source address={{item}} port={{prometheus_nginx_exporter_firewalld_port}} protocol=tcp"
+        rich_rule: "rule family=ipv4 source address={{item}} port port={{prometheus_nginx_exporter_firewalld_port}} protocol=tcp accept"
       loop: "{{ prometheus_firewalld_source_ips }}"
 
     - name: Ensure nginx is enabled and reloaded

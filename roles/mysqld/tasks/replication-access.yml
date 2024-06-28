@@ -1,0 +1,17 @@
+- name: Allow ipv4 access to mysql network port for replication
+  ansible.builtin.firewalld:
+    zone: "{{mysql_firewalld_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port={{mysql_firewalld_port}} protocol=tcp"
+  loop: "{{ mysql_firewalld_replication_allowed_ipv4_ips }}"
+
+- name: Allow ipv6 access to mysql network port for replication
+  ansible.builtin.firewalld:
+    zone: "{{mysql_firewalld_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port={{mysql_firewalld_port}} protocol=tcp"
+  loop: "{{ mysql_firewalld_replication_allowed_ipv6_ips }}"
