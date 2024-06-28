@@ -1,0 +1,11 @@
+module custom_tang_policy 1.0;
+
+require {
+	type preupgrade_port_t;
+	type tangd_t;
+	class tcp_socket name_bind;
+}
+
+#============= tangd_t ==============
+allow tangd_t preupgrade_port_t:tcp_socket name_bind;
+

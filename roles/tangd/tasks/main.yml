@@ -1,0 +1,49 @@
+---
+- name: Install required packages
+  ansible.builtin.package:
+    name: tang
+    state: present
+
+- name: Copy SELINUX policy module
+  ansible.builtin.copy:
+    src: custom_tang_policy.te
+    dest: /tmp/selinux/
+
+- name: Check Custom SELINUX Module
+  ansible.builtin.command:
+    cmd: checkmodule -M -m -o custom_tang_policy.mod custom_tang_policy.te
+    chdir: /tmp/selinux/
+
+- name: Compile Custom SELINUX Module
+  ansible.builtin.command:
+    cmd: semodule_package -o custom_tang_policy.pp -m custom_tang_policy.mod
+    chdir: /tmp/selinux/
+
+- name: Install Custom SELINUX Module
+  ansible.builtin.command:
+    cmd: semodule -i custom_tang_policy.pp
+    chdir: /tmp/selinux/
+
+- name: Create tangd.socket.d
+  ansible.builtin.file:
+    dest: /etc/systemd/system/tangd.socket.d
+    state: directory
+    seuser: system_u
+    serole: object_r
+    setype: systemd_unit_file_t
+    mode: '0755'
+
+- name: Create tangd.socket.d/override.conf
+  ansible.builtin.template:
+    src: tang.socket.conf.j2
+    dest: /etc/systemd/system/tangd.socket.d/override.conf
+    seuser: system_u
+    serole: object_r
+    setype: systemd_unit_file_t
+    mode: '0644'
+
+- name: Ensure systemd sees the tangd socket service override
+  systemd: daemon_reload=yes
+
+- name: Start tangd.socket
+  service: name=tangd.socket state=started enabled=true
