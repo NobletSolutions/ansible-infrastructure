@@ -5,18 +5,20 @@
 - name: Ensure systemd sees the service
   systemd: daemon_reload=yes
 
-- name: Add Firewall Zone
-  firewalld: zone="{{prometheus_node_exporter_firewalld_zone}}" state=present permanent=yes
+- name: Remove Deprecated Firewall Zone
+  ansible.builtin.firewalld:
+    zone: prometheus-access
+    state: absent
+    permanent: yes
 
-- name: Reload Firewalld
-  service: name=firewalld state=reloaded
-
-- name: Add Sources
-  firewalld: zone="{{prometheus_node_exporter_firewalld_zone}}" source="{{item}}" state=enabled permanent=yes immediate=yes
+- name: Allow access through firewall to prometheus exporter port
+  ansible.builtin.firewalld:
+    zone: "{{prometheus_node_exporter_firewalld_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port={{prometheus_node_exporter_firewalld_port}} protocol=tcp"
   loop: "{{ prometheus_firewalld_source_ips }}"
-
-- name: Add Ports
-  firewalld: zone="{{prometheus_node_exporter_firewalld_zone}}" port="{{prometheus_node_exporter_firewalld_port}}/tcp" state=enabled permanent=yes immediate=yes
 
 - name: Ensure prometheus-node-exporter is enabled and started
   service: name=prometheus-node-exporter enabled=yes state=started

@@ -1,5 +1,5 @@
 ---
-prometheus_mysqld_exporter_firewalld_zone: prometheus-access
+prometheus_mysqld_exporter_firewalld_zone: public
 prometheus_firewalld_source_ips: 
 prometheus_mysqld_exporter_firewalld_port: 9104
 prometheus_mysqld_exporter_username: prometheus_exp
