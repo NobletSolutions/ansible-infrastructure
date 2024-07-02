@@ -19,6 +19,3 @@
 
 - name: Ensure mariadb is started
   service: name=mariadb enabled=yes state=started
-
-- include_tasks: replication-access.yml
-  when: mysql_firewalld_replication_allowed_ipv4_ips|length > 0 or mysql_firewalld_replication_allowed_ipv6_ips|length > 0

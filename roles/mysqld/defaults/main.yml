@@ -2,7 +2,3 @@
 mysql_root_password: MySQLRootPassword
 mysql_old_root_password: False
 mysql_oom_score_adj: -1000
-mysql_firewalld_zone: public
-mysql_firewalld_port: 3306
-mysql_firewalld_replication_allowed_ipv4_ips: []
-mysql_firewalld_replication_allowed_ipv6_ips: []

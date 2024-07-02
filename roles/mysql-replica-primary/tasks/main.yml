@@ -1,0 +1,36 @@
+---
+- name: Allow ipv4 access to mysql network port for replication
+  ansible.builtin.firewalld:
+    zone: "{{mysql_replica_primary_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port={{mysql_replica_primary_port}} protocol=tcp"
+  loop: "{{ mysql_replica_primary_allowed_ipv4_ips }}"
+
+- name: Allow ipv6 access to mysql network port for replication
+  ansible.builtin.firewalld:
+    zone: "{{mysql_replica_primary_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv6 source address={{item}} port={{mysql_replica_primary_port}} protocol=tcp"
+  loop: "{{ mysql_replica_primary_allowed_ipv6_ips }}"
+
+- fail: msg="mysql_replica_primary_replicant_password needs to be set"
+  when: mysql_replica_primary_replicant_password is not defined
+
+- name: Create replicant user
+  community.mysql.mysql_user:
+    name: "{{ mysql_replica_primary_replicant_user }}"
+    host: '%'
+    password: "{{ mysql_replica_primary_replicant_password }}"
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    priv: '*.*:REPLICATION SLAVE'
+
+# # Need to do this for idempotency, see
+# # http://ansible.cc/docs/modules.html#mysql-user
+# - name: set mysql root password for all root accounts
+#   mysql_user: name=root host=localhost password="{{mysql_root_password}}"
+#   ignore_errors: yes

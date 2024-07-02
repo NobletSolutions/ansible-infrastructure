@@ -1,0 +1,6 @@
+mysql_replica_primary_zone: public
+mysql_replica_primary_port: 3306
+mysql_replica_primary_allowed_ipv4_ips: []
+mysql_replica_primary_allowed_ipv6_ips: []
+mysql_replica_primary_replicant_user: replicant
+# mysql_replica_primary_replicant_password:
