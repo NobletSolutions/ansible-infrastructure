@@ -1,36 +1,41 @@
 ---
-- name: Error if we haven't configured backup_master_host
-  fail: msg="the command failed"
-  when: backup_target_master_host == False or backup_target_master_host_user == False
+- name: Error if we haven't configured backup_target_master_host
+  fail: msg="backup_target_master_host OR backup_target_master_ssh_pubkey is not set"
+  when: backup_target_master_host == False or backup_target_master_ssh_pubkey == False
 
 - name: Install required packages
-  yum:  pkg={{item}} state=installed
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: installed
   with_items:
     - rsync
     - sudo
+
+- name: Add backup system user
+  user: name="{{ backup_target_user }}" shell=/bin/bash update_password=on_create
+
+- name: Create user .ssh directory
+  ansible.builtin.file:
+    path: "/home/{{backup_target_user}}/.ssh/"
+    mode: '0700'
+    setype: ssh_home_t
+    state: directory
+
+- name: Generate backup user ssh key pair
+  community.crypto.openssh_keypair:
+    path: "/home/{{backup_target_user}}/.ssh/id_ed25519"
+    type: ed25519
+
+- name: Sudo configuration for the backup system user
+  template: src=sudo.j2 dest="/etc/sudoers.d/{{ backup_target_user }}" owner=root group=root mode=0440
 
 - name: Ensure requiretty is off
   lineinfile: dest=/etc/sudoers state=absent regexp="^Defaults    requiretty"
 
 - name: Install the 'rsync-wrapper.sh' script, called by the master
-  copy: src=rsync-wrapper.sh dest=/usr/local/bin/rsync-wrapper.sh owner=root group=root mode=0755
-
-- name: Add backup system user
-  user: name={{ backup_target_user }} shell=/bin/bash update_password=on_create
-
-- name: Sudo configuration for the backup system user
-  template: src=sudo.j2 dest=/etc/sudoers.d/{{ backup_target_user }} owner=root group=root mode=0440
-
-- name: Retrieve the SSH public key on the rsnapshot backup master host
-  delegate_to: "{{ backup_target_master_host }}"
-  remote_user: "{{ backup_target_master_host_user }}"
-  command: "cat $HOME/.ssh/id_rsa.pub"
-  register: backup_target_master_ssh_pubkey
-  changed_when: False
-  check_mode: no
+  copy: src=rsync-wrapper.sh dest=/usr/local/bin/rsync-wrapper.sh owner=root group="{{ backup_target_user }}" mode=0755
 
 - name: Set the SSH public key for the backup system user
-  authorized_key: user={{ backup_target_user }} key="{{ backup_target_master_ssh_pubkey.stdout }}"
-  when: backup_target_master_ssh_pubkey
+  authorized_key: user="{{ backup_target_user }}" key="{{ backup_target_master_ssh_pubkey }}"
   notify:
     - update aide

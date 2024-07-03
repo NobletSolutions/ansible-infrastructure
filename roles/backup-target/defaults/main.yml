@@ -1,4 +1,8 @@
 ---
 backup_target_user: backup
 backup_target_master_host: False
-backup_target_master_host_user: False
+# This can be set in the host vars to apply to all hosts in project
+# For example
+#[all:vars]
+#backup_target_master_ssh_pubkey="ssh-rsa ....."
+backup_target_master_ssh_pubkey: False
