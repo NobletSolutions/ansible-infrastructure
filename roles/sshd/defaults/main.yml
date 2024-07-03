@@ -16,6 +16,12 @@ sshd_priv_separation: "sandbox"
 sshd_rekey_limit_size: "1G"
 sshd_rekey_limit_time: "1h"
 
+sshd_admin_group_name: admin
 sshd_additional_admins: []
-# Needs to be an array of hashes
-# - { name: gnat, public_keys: [gnat-iridium, gnat-msi] }
+# Needs to be an array of hashes (nopassword defaults to false)
+# - { name: gnat, public_keys: [gnat-iridium, gnat-msi], nopassword: true }
+
+sshd_revoked_admins: []
+
+sshd_allow_admin_groups:
+  - gnat

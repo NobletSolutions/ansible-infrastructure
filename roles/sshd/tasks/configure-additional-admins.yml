@@ -1,18 +1,45 @@
-- name: Debug
-  ansible.builtin.debug:
-    msg: "{{item}}"
-  with_items: "{{sshd_additional_admins}}"
+- name: Create Admin Group
+  ansible.builtin.group:
+    name: "{{ sshd_admin_group_name }}"
+    state: present
 
 - name: Create Additional Admin "{{ item.name }}"
   ansible.builtin.user:
     name: "{{ item.name }}"
     comment: "Admin account for {{ item.name }}"
-    groups: wheel
+    groups: "wheel,{{ sshd_admin_group_name }}"
     append: yes
-  with_items: "{{sshd_additional_admins}}"
+  with_items: "{{ sshd_additional_admins }}"
 
 - name: Set up authorized_keys for the configured admin user
   ansible.posix.authorized_key: user="{{ item.0.name }}" state=present key='{{ lookup('file', sshd_key_path + '/' + item.1 ) }}' manage_dir=yes
   with_subelements:
-    - "{{sshd_additional_admins}}"
+    - "{{ sshd_additional_admins }}"
     - public_keys
+
+- name: Allow each admin any commands
+  community.general.sudoers:
+    name: "{{ item.name }}"
+    state: present
+    user: "{{ item.name }}"
+    commands: ALL
+    nopassword: "{{ item.nopassword|default(false) }}"
+  loop: "{{ sshd_additional_admins }}"
+
+- name: Remove revoked admins
+  community.general.sudoers:
+    name: "{{item.name}}"
+    state: absent
+  loop: "{{ sshd_revoked_admins }}"
+
+- name: Delete revoked admins
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: absent
+  with_items: "{{ sshd_revoked_admins }}"
+
+- name: Configure AllowGroups
+  ansible.builtin.lineinfile:
+    line: "AllowGroups {{ sshd_admin_group_name }} {{ sshd_allow_admin_groups|join(' ') }}"
+    path: /etc/ssh/ssh_config.d/allow-groups.conf
+    create: true
