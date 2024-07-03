@@ -1,6 +1,16 @@
 {% for exclude in backup_server_exclude %}
 - {{ exclude }}
 {% endfor %}
+{% if item is defined and item.excludes is defined %}
+{% for exclude in item.excludes %}
+- {{ exclude }}
+{% endfor %}
+{% endif %}
 {% for include in backup_server_include %}
 + {{ include }}
 {% endfor %}
+{% if item is defined and item.includes is defined %}
+{% for include in item.includes %}
++ {{ include }}
+{% endfor %}
+{% endif %}
