@@ -47,3 +47,12 @@
 
 - name: Start tangd.socket
   service: name=tangd.socket state=started enabled=true
+
+- name: Allow ipv4 access to tangd socket nbe
+  ansible.builtin.firewalld:
+    zone: "{{tangd_firewall_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port port={{tangd_port}} protocol=tcp accept"
+  loop: "{{ tandg_allowed_source_ips }}"

@@ -1,2 +1,4 @@
 ---
-tangd_socket: 7406
+tangd_port: 7406
+tangd_firewall_zone: public
+tandg_allowed_source_ips: []
