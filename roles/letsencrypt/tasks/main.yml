@@ -1,6 +1,6 @@
 ---
 - name: Include letsencrypt tool
-  yum: pkg=letsencrypt state=latest
+  ansible.builtin.dnf: pkg=letsencrypt state=latest
 
 - name: Fail when missing required arguments
   fail: msg="Missing required parameters/variables"
