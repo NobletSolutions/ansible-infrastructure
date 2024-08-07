@@ -1,4 +1,5 @@
 ckeditor_word_exporter_license: 
 ckeditor_word_exporter_secret:
 ckeditor_word_exporter_metric_logs: true
-
+ckeditor_word_exporter_registry_password: ''
+ckeditor_word_exporter_registry_username: 'docx-converter'

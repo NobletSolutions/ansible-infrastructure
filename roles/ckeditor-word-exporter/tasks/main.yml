@@ -1,7 +1,4 @@
 ---
-- name: Ensure we have noblet-epel.repo
-  copy: src=noblet-epel.repo dest=/etc/yum.repos.d/noblet-epel.repo owner=root group=root mode=0644
-
 - name: Install ckeditor-word-exporter
   yum: name=ckeditor-word-export state=latest
 
@@ -17,11 +14,37 @@
     regexp: '^SECRET_KEY='
     line: "SECRET_KEY={{ckeditor_word_exporter_secret}}"
 
+- name: Ensure secure permissions to sysconf file
+  ansible.builtin.file:
+    path: /etc/sysconfig/ckeditor-word-export
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Update metric_logs key
   lineinfile:
     path: /etc/sysconfig/ckeditor-word-export
     regexp: '^ENABLE_METRIC_LOGS='
     line: "ENABLE_METRIC_LOGS={{ckeditor_word_exporter_metric_logs}}"
+
+- name: Check that the /etc/ckeditor/auth.json exists
+  stat:
+    path: /etc/ckeditor/auth.json
+  register: auth_json_result
+
+- name: Handle docker registry login
+  block:
+  - name: Set docker registry password
+    ansible.builtin.copy:
+      dest: "/etc/ckeditor/registry.pass"
+      owner: root
+      group: root
+      mode: 0600
+      content: "{{ ckeditor_word_exporter_registry_password }}"
+
+  - name: Login to docker registry
+    ansible.builtin.shell: /usr/bin/podman login -u "{{ckeditor_word_exporter_registry_username}}" --authfile /etc/ckeditor/auth.json --password-stdin < /etc/ckeditor/registry.pass https://docker.cke-cs.com
+  when: not auth_json_result.stat.exists
 
 - name: Ensure service is running
   service: name=ckeditor-word-export state=started enabled=yes
