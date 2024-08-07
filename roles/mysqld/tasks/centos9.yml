@@ -1,4 +1,9 @@
 ---
+- name: Enable mariadb module
+  ansible.builtin.command:
+    cmd: "dnf module enable -y {{ mysql_enable_module }}"
+  when: mysql_enable_module
+
 - name: Install mariadb
   yum: 
     state: present
