@@ -1,23 +1,15 @@
 ---
 - name: install elasticsearch rpm gpg key
-  rpm_key: state=present key=https://packages.elastic.co/GPG-KEY-elasticsearch
+  rpm_key: state=present key=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-- name: install elasticsearch 1.x repository
-  copy: src=elasticsearch-1.6.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
-  when: elasticsearch_version == 1
-
-- name: install elasticsearch 2.x repository
-  copy: src=elasticsearch-2.0.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
-  when: elasticsearch_version == 2
+- name: install elasticsearch 8.x repository
+  copy: src=elasticsearch-8.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
+  when: elasticsearch_version == 8
 
 - name: install elasticsearch and dependencies
   yum: name={{item}} state=latest
   with_items:
-    - java-1.8.0
     - elasticsearch
-
-- name: copy elasticsearch config
-  copy: src=elasticsearch dest=/etc/sysconfig/elasticsearch owner=root group=root mode=0644
 
 - name: start elasticsearch on boot
   service: name=elasticsearch state=started enabled=yes
