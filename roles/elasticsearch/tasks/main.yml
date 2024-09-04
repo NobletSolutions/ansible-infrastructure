@@ -10,6 +10,7 @@
   yum: name={{item}} state=latest
   with_items:
     - elasticsearch
+  notify: update aide
 
 - name: start elasticsearch on boot
   service: name=elasticsearch state=started enabled=yes
