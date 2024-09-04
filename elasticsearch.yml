@@ -4,4 +4,3 @@
   become: "{{ default_admin_user_become|default('false')}}"
   roles:
     - elasticsearch
-    - aide

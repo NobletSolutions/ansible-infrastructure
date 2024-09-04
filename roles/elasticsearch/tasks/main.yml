@@ -1,15 +1,211 @@
 ---
+- name: check if certs exist
+  stat: 'path=/etc/letsencrypt/live/{{ elasticsearch_hostname }}/privkey.pem'
+  register: certfile
+
+- name: fail if certs not present
+  fail: 'msg="/etc/letsencrypt/live/{{ elasticsearch_hostname }}/privkey.pem not found"'
+  when: not certfile.stat.exists
+
+- name: set vars
+  ansible.builtin.set_fact:
+    elastic_running: false
+    cluster_running: false
+
+- name: check if elasticsearch already running
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    validate_certs: false
+    return_content: true
+  register: elastic_response
+  ignore_errors: true
+
+- name: set a var if ES is already running
+  ansible.builtin.set_fact:
+    elastic_running: true
+  when: "elastic_response.content is defined and 'cluster_name' in elastic_response.content"
+
 - name: install elasticsearch rpm gpg key
   rpm_key: state=present key=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  when: elastic_running is false
 
 - name: install elasticsearch 8.x repository
   copy: src=elasticsearch-8.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
-  when: elasticsearch_version == 8
+  when: elasticsearch_version == 8 and elastic_running is false
 
 - name: install elasticsearch and dependencies
   yum: name={{item}} state=latest
   with_items:
     - elasticsearch
+  notify: update aide
+  when: elastic_running is false
+
+- name: open http port
+  ansible.posix.firewalld:
+    port: '{{ elasticsearch_http_port }}/tcp'
+    permanent: true
+    state: enabled
+
+- name: open transport port
+  ansible.posix.firewalld:
+    port: '{{ elasticsearch_transport_port }}/tcp'
+    permanent: true
+    state: enabled
+
+- name: reload firewalld
+  service: name=firewalld state=reloaded
+
+- name: create old certs dir
+  ansible.builtin.file:
+    path: /etc/elasticsearch/certs/old
+    state: directory
+    mode: '0750'
+
+- name: old certs dir ownership
+  ansible.builtin.file:
+    path: /etc/elasticsearch/certs/old
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: copy certs script
+  ansible.builtin.template:
+    src: es-certs.sh
+    dest: /usr/local/sbin/es-certs.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: run certs script
+  ansible.builtin.shell: /usr/local/sbin/es-certs.sh
+
+- name: copy elasticsearch.yml
+  ansible.builtin.template:
+    src: elasticsearch.yml
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: copy roles.yml
+  ansible.builtin.template:
+    src: roles.yml
+    dest: /etc/elasticsearch/roles.yml
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: uncomment initial master nodes
+  ansible.builtin.replace:
+    path: /etc/elasticsearch/elasticsearch.yml
+    backup: true
+    regexp: '^ *#cluster\.initial_master_nodes'
+    replace: '  cluster.initial_master_nodes'
+  when: elastic_running is false
+
+- name: check cluster status
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/_cluster/health'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    validate_certs: false
+    return_content: true
+  register: cluster_response
+  ignore_errors: true
+  when: elastic_running is true
+
+- name: comment out initial master nodes
+  ansible.builtin.replace:
+    path: /etc/elasticsearch/elasticsearch.yml
+    backup: true
+    regexp: '^cluster\.initial_master_nodes'
+    replace: '#cluster.initial_master_nodes'
+  when: "elastic_running is true and cluster_response.content is defined and 'cluster_name' in cluster_response.content"
 
 - name: start elasticsearch on boot
   service: name=elasticsearch state=started enabled=yes
+  when: elastic_running is false
+
+- name: restart elasticsearch
+  service: name=elasticsearch state=restarted
+  when: elastic_running is true
+
+- name: check if all seed hosts running
+  loop: '{{ elasticsearch_discovery_seed_hosts }}'
+  ansible.builtin.uri:
+    url: 'https://{{ item }}:{{ elasticsearch_http_port }}'
+    validate_certs: false
+    status_code: 401 #We can't authenticate without setting the root PW, but we can't set the root PW until the cluster is functional; if we get a 401 here, it means the node is running but rejected the request
+
+- name: set root password
+  ansible.builtin.expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u {{ elasticsearch_admin_user }} --url="https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}"'
+    responses:
+      confirm: "y"
+      "password for": "{{ elasticsearch_admin_password }}"
+  no_log: true
+
+- name: check cluster status
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/_cluster/health'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    validate_certs: false
+    return_content: true
+  register: cluster_response
+  ignore_errors: true
+
+- name: is cluster running?
+  ansible.builtin.set_fact:
+    cluster_running: true
+  when: "cluster_response.content is defined and 'cluster_name' in cluster_response.content"
+
+- name: create dev user
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/_security/user/{{ elasticsearch_dev_user }}'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    method: POST
+    body_format: json
+    validate_certs: false
+    body:
+      password: '{{ elasticsearch_dev_user_password }}'
+      roles: [ "dev_user" ]
+  when: cluster_running is true
+  no_log: true
+
+- name: create prod user
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/_security/user/{{ elasticsearch_prod_user }}'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    method: POST
+    body_format: json
+    validate_certs: false
+    body:
+      password: '{{ elasticsearch_prod_user_password }}'
+      roles: [ "prod_user" ]
+  when: cluster_running is true
+  no_log: true
+
+- name: create staging user
+  ansible.builtin.uri:
+    url: 'https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}/_security/user/{{ elasticsearch_staging_user }}'
+    user: '{{ elasticsearch_admin_user }}'
+    password: '{{ elasticsearch_admin_password }}'
+    method: POST
+    body_format: json
+    validate_certs: false
+    body:
+      password: '{{ elasticsearch_staging_user_password }}'
+      roles: [ "staging_user" ]
+  when: cluster_running is true
+  no_log: true
+
+- name: comment out initial master nodes
+  ansible.builtin.replace:
+    path: /etc/elasticsearch/elasticsearch.yml
+    backup: true
+    regexp: '^ *cluster\.initial_master_nodes'
+    replace: '#  cluster.initial_master_nodes'
+  when: cluster_running is true
