@@ -9,3 +9,4 @@ elasticsearch_transport_port: 9300
 elasticsearch_verify_certs: full
 elasticsearch_client_authentication: full
 elasticsearch_admin_user: elastic
+elasticsearch_uri: "https://{{ elasticsearch_hostname }}:{{ elasticsearch_http_port }}"
