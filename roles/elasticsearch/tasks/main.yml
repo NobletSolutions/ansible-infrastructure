@@ -42,20 +42,51 @@
   notify: update aide
   when: elastic_running is false
 
-- name: open http port
+- name: Open public http port to specific IP addresses
+  ansible.builtin.firewalld:
+    zone: "{{ elasticsearch_firewall_http_zone }}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{ item }} port port={{ elasticsearch_http_port }} protocol=tcp accept"
+  loop: "{{ elasticsearch_firewall_http_allowed_source_ips }}"
+  when: elasticsearch_firewall_http_allowed_source_ips | length | int > 0
+
+- name: Open public http port to all traffic
   ansible.posix.firewalld:
     port: '{{ elasticsearch_http_port }}/tcp'
+    zone: "{{ elasticsearch_firewall_http_zone }}"
     permanent: true
+    immediate: true
     state: enabled
+  when: elasticsearch_firewall_http_allowed_source_ips | length | int == 0
 
-- name: open transport port
+- name: Open private transport port to specific IP addresses
+  ansible.builtin.firewalld:
+    zone: "{{ elasticsearch_firewall_transport_zone }}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{ item }} port port={{ elasticsearch_transport_port }} protocol=tcp accept"
+  loop: "{{ elasticsearch_firewall_transport_allowed_source_ips }}"
+  when: elasticsearch_firewall_transport_allowed_source_ips | length | int > 0
+
+- name: Open private transport port to all traffic
   ansible.posix.firewalld:
     port: '{{ elasticsearch_transport_port }}/tcp'
+    zone: "{{ elasticsearch_firewall_transport_zone }}"
+    immediate: true
     permanent: true
     state: enabled
+  when: elasticsearch_firewall_transport_allowed_source_ips | length | int == 0
 
-- name: reload firewalld
-  service: name=firewalld state=reloaded
+- name: copy certs script
+  ansible.builtin.template:
+    src: es-certs.sh.j2
+    dest: /usr/local/sbin/es-certs.sh
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: run certs script
   ansible.builtin.shell: /usr/local/sbin/es-certs.sh
