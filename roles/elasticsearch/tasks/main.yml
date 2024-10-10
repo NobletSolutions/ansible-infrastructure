@@ -1,6 +1,6 @@
 ---
 - name: check if certs exist
-  stat: 'path=/etc/letsencrypt/live/{{ elasticsearch_hostname }}/privkey.pem'
+  ansible.builtin.stat: 'path=/etc/letsencrypt/live/{{ elasticsearch_hostname }}/privkey.pem'
   register: certfile
 
 - name: fail if certs not present
@@ -32,18 +32,27 @@
   when: elastic_running is false
 
 - name: install elasticsearch 8.x repository
-  copy: src=elasticsearch-8.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
+  ansible.builtin.copy: src=elasticsearch-8.repo dest=/etc/yum.repos.d/elasticsearch.repo owner=root group=root mode=0644
   when: elasticsearch_version == 8 and elastic_running is false
 
 - name: install elasticsearch and dependencies
-  yum: name={{item}} state=latest
+  ansible.builtin.yum: name={{item}} state=latest
   with_items:
     - elasticsearch
   notify: update aide
   when: elastic_running is false
 
+- name: Close public http port to all address when we have specific IP addresses configured
+  ansible.posix.firewalld:
+    port: '{{ elasticsearch_http_port }}/tcp'
+    zone: "{{ elasticsearch_firewall_http_zone }}"
+    permanent: true
+    immediate: true
+    state: disabled
+  when: elasticsearch_firewall_http_allowed_source_ips | length | int > 0
+
 - name: Open public http port to specific IP addresses
-  ansible.builtin.firewalld:
+  ansible.posix.firewalld:
     zone: "{{ elasticsearch_firewall_http_zone }}"
     permanent: true
     immediate: true
@@ -61,8 +70,17 @@
     state: enabled
   when: elasticsearch_firewall_http_allowed_source_ips | length | int == 0
 
+- name: Close private transport port to all address when we have specific IP addresses configured
+  ansible.posix.firewalld:
+    port: '{{ elasticsearch_http_port }}/tcp'
+    zone: "{{ elasticsearch_firewall_http_zone }}"
+    permanent: true
+    immediate: true
+    state: disabled
+  when: elasticsearch_firewall_transport_allowed_source_ips | length | int > 0
+
 - name: Open private transport port to specific IP addresses
-  ansible.builtin.firewalld:
+  ansible.posix.firewalld:
     zone: "{{ elasticsearch_firewall_transport_zone }}"
     permanent: true
     immediate: true
@@ -75,8 +93,8 @@
   ansible.posix.firewalld:
     port: '{{ elasticsearch_transport_port }}/tcp'
     zone: "{{ elasticsearch_firewall_transport_zone }}"
-    immediate: true
     permanent: true
+    immediate: true
     state: enabled
   when: elasticsearch_firewall_transport_allowed_source_ips | length | int == 0
 
@@ -133,19 +151,19 @@
   when: "elastic_running is true and cluster_response.content is defined and 'cluster_name' in cluster_response.content"
 
 - name: start elasticsearch on boot
-  service: name=elasticsearch state=started enabled=yes
+  ansible.builtin.service: name=elasticsearch state=started enabled=yes
   when: elastic_running is false
 
 - name: restart elasticsearch
-  service: name=elasticsearch state=restarted
+  ansible.builtin.service: name=elasticsearch state=restarted
   when: elastic_running is true
 
 - name: check if all seed hosts running
-  loop: '{{ elasticsearch_discovery_seed_hosts }}'
   ansible.builtin.uri:
     url: 'https://{{ item }}:{{ elasticsearch_http_port }}'
     validate_certs: false
     status_code: 401 #We can't authenticate without setting the root PW, but we can't set the root PW until the cluster is functional; if we get a 401 here, it means the node is running but rejected the request
+  loop: '{{ elasticsearch_discovery_seed_hosts }}'
 
 - name: set root password
   ansible.builtin.expect:
