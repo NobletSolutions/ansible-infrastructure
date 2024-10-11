@@ -2,4 +2,12 @@
 # through the API/UI. File based roles are useful in error scenarios when the
 # API based roles may not be available.
 
-{{elasticsearch_roles | to_yaml }}
+{% for config in elasticsearch_roles %}
+{{ config.role}}:
+    cluster: {{ config.cluster}}
+    indices:
+{% for indice in config.indices %}
+      - names: {{ indice.names}}
+        privileges: {{ indice.privileges }}
+{% endfor %}
+{% endfor %}
