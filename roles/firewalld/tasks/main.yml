@@ -41,7 +41,7 @@
   notify: restart firewalld
 
 - name: Add ipset to drop zone
-  firewalld: source=ipset:{{item.name}} zone=drop immediate=yes permanent=yes state=enabled
+  firewalld: source=ipset:{{item.name}} zone=drop permanent=yes state=enabled
   with_items: "{{ firewalld_denied_ips }}"
   notify: restart firewalld
 
