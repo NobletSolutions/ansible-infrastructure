@@ -8,6 +8,9 @@
 - include_tasks: php83-centos.yml
   when: php_version == 8.3 and ansible_distribution_major_version|int < 23
 
+- include_tasks: php84-centos.yml
+  when: php_version == 8.4 and ansible_distribution_major_version|int < 23
+
 - name: Install php
   ansible.builtin.dnf:
     state: latest
@@ -24,7 +27,14 @@
   notify:
     - update aide
 
-- name: PHP datetime
+- name: Start & Enable php-fpm service
+  ansible.builtin.systemd_service:
+    name: php-fpm
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: PHP - timezone
   ini_file: dest=/etc/php.ini section=Date option=date.timezone value="{{php_timezone}}" mode=0644
 
 - name: PHP - Post Max Size
