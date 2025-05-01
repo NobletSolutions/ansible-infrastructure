@@ -1,0 +1,67 @@
+- name: Check required variables
+  debug:
+    msg: "required variables are set and not empty"
+  failed_when: rabbitmq_default_user|length == 0 or rabbitmq_default_pass|length == 0
+
+- name: Install rabbitmq repo
+  ansible.builtin.copy:
+    dest: /etc/yum.repos.d/rabbitmq.repo
+    src: rabbitmq.repo
+
+- name: Import rpm keys
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ item }}"
+  with_items: "{{ rabbitmq_dnf_repo_key_urls }}"
+
+- name: Install rabbitmq
+  ansible.builtin.package:
+    name: rabbitmq-server
+    state: present
+
+- name: Add rabbitmq default_user
+  community.general.ini_file:
+    path: /etc/rabbitmq/rabbitmq.conf
+    option: default_user
+    value: "{{ rabbitmq_default_user }}"
+    create: true
+    mode: 0640
+    owner: root
+    group: rabbitmq
+    serole: object_r
+    seuser: system_u
+    setype: rabbitmq_conf_t
+
+- name: Add rabbitmq default_pass
+  community.general.ini_file:
+    path: /etc/rabbitmq/rabbitmq.conf
+    option: default_pass
+    value: "{{ rabbitmq_default_pass }}"
+    create: true
+    mode: 0640
+    owner: root
+    group: rabbitmq
+    serole: object_r
+    seuser: system_u
+    setype: rabbitmq_conf_t
+
+- name: Set ulimit override
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/rabbitmq-server.service.d/override.conf
+    src: systemd-service-override.conf
+    serole: object_r
+    seuser: system_u
+    setype: systemd_unit_file_t
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Enable & Start rabbitmq 
+  ansible.builtin.systemd_service:
+    name: "rabbitmq-server"
+    enabled: true
+    state: started
