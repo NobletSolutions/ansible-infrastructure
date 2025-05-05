@@ -5,3 +5,10 @@ rabbitmq_dnf_repo_key_urls:
 
 rabbitmq_default_user: 
 rabbitmq_default_pass:
+
+rabbitmq_management_enable: disable
+rabbitmq_tls_enabled: false
+rabbitmq_tls_hostname:
+
+rabbitmq_tls_ssl_default_port: 5671
+rabbitmq_tls_ssl_management_port: 15671

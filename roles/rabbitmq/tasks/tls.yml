@@ -1,0 +1,56 @@
+- name: Check required variables for TLS
+  debug:
+    msg: "TLS is enabled but no rabbitmq_tls_hostname variable is set"
+  failed_when: rabbitmq_tls_enabled and rabbitmq_tls_hostname|length == 0
+
+- name: Create TLS cert directory
+  ansible.builtin.file:
+    dest: /etc/rabbitmq/certs
+    state: directory
+    seuser: system_u
+    group: rabbitmq
+
+- name: Added Default TLS configs
+  community.general.ini_file:
+    path: /etc/rabbitmq/rabbitmq.conf
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    create: true
+    mode: 0640
+    owner: root
+    group: rabbitmq
+    seuser: system_u
+    serole: object_r
+    setype: rabbitmq_conf_t
+  with_items:
+     - { option: listeners.ssl.default, value: "{{ rabbitmq_tls_ssl_default_port }}" }
+     - { option: ssl_options.cacertfile, value: "/etc/rabbitmq/certs/chain.pem" }
+     - { option: ssl_options.certfile, value: "/etc/rabbitmq/certs/cert.pem" }
+     - { option: ssl_options.keyfile, value: "/etc/rabbitmq/certs/privkey.pem" }
+
+- name: Added Admin TLS port
+  community.general.ini_file:
+    path: /etc/rabbitmq/rabbitmq.conf
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    create: true
+    mode: 0640
+    owner: root
+    group: rabbitmq
+    seuser: system_u
+    serole: object_r
+    setype: rabbitmq_conf_t
+  with_items:
+     - { option: management.ssl.port, value: "{{ rabbitmq_tls_ssl_management_port }}" }
+     - { option: management.ssl.cacertfile, value: "/etc/rabbitmq/certs/chain.pem" }
+     - { option: management.ssl.certfile, value: "/etc/rabbitmq/certs/cert.pem" }
+     - { option: management.ssl.keyfile, value: "/etc/rabbitmq/certs/privkey.pem" }
+  when: rabbitmq_management_enable == "enable"
+
+- name: Copy certbot script
+  ansible.builtin.template:
+    src: rabbitmq-copy-certs.j2
+    dest: /usr/local/sbin/rabbitmq-copy-certs.sh
+    seuser: system_u
+    serole: object_r
+    mode: '0755'

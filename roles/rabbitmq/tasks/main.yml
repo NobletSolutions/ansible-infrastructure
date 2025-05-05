@@ -56,6 +56,25 @@
     owner: root
     group: root
 
+- name: Enable/Disable rabbitmq management plugin
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/rabbitmq-plugins
+      - "{{ rabbitmq_management_enable }}"
+      - rabbitmq_management
+  ignore_errors: True
+
+# For whatever reason the rabbitmq-plugins doesn't create the file with the correct permissions of root:rabbitmq
+- name: Fix plugin config permissions
+  ansible.builtin.file:
+    dest: /etc/rabbitmq/enabled_plugins
+    seuser: system_u
+    group: rabbitmq
+
+- name: Include TLS Tasks
+  include_tasks: tls.yml
+  when: rabbitmq_tls_enabled
+
 - name: Reload systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
