@@ -1,0 +1,97 @@
+- name: Check required variables
+  debug:
+    msg: "podman_registry_hostname is required but is currently empty"
+  failed_when: podman_registry_hostname|length == 0
+
+- name: Ensure required packages are installed
+  ansible.builtin.package:
+    state: latest
+    name: "{{ item }}"
+  loop: "{{ podman_registry_packages }}"
+  # notify:
+  #   - update aide
+
+- name: Create registry user
+  ansible.builtin.user:
+    name: "{{ podman_registry_user }}"
+
+- name: Create registry directories
+  ansible.builtin.file:
+    dest: "{{podman_registry_path}}/{{item}}"
+    state: directory
+    owner: "{{ podman_registry_user }}"
+    group: "{{ podman_registry_user }}"
+  loop: "{{ podman_registry_directories }}"
+
+- name: Create empty htpasswd
+  ansible.builtin.file:
+    dest: "{{podman_registry_path}}/auth/{{podman_registry_htpasswd_file}}"
+    owner: "{{ podman_registry_user }}"
+    group: "{{ podman_registry_user }}"
+    mode: '0640'
+    state: file
+
+- name: Add a user to a password file and ensure permissions are set
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/htpasswd
+      - "-bB"
+      - "{{podman_registry_path}}/auth/{{podman_registry_htpasswd_file}}"
+      - "{{item.username}}"
+      - "{{item.password}}"
+  with_items: "{{ podman_registry_auth_users }}"
+  when: podman_registry_auth_users|length > 0
+
+- name: Enable linger for registry user
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/loginctl
+      - enable-linger
+      - "{{ podman_registry_user }}"
+    creates: "/var/lib/systemd/linger/{{ podman_registry_user }}"
+
+- name: Create registry systemd directory
+  ansible.builtin.file:
+    dest: ~/.config/containers/systemd/
+    state: directory
+    recurse: true
+    owner: "{{ podman_registry_user }}"
+    group: "{{ podman_registry_user }}"
+  become: true
+  become_user: "{{ podman_registry_user }}"
+
+- name: Generate systemd unit file for registry container
+  ansible.builtin.template:
+    src: container-quadlet.j2
+    dest: ~/.config/containers/systemd/podman-registry.container
+    owner: "{{ podman_registry_user }}"
+    group: "{{ podman_registry_user }}"
+  become: true
+  become_user: "{{ podman_registry_user }}"
+
+- name: Get registry user id
+  getent: 
+    database: passwd
+    key: "{{ podman_registry_user }}"
+
+- name: Reload systemd to reread configs
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  environment: 
+    XDG_RUNTIME_DIR: "/run/usr/{{getent_passwd[podman_registry_user].1}}"
+
+- name: Copy certbot script
+  ansible.builtin.template:
+    src: podman-registry-copy-certs.j2
+    dest: /usr/local/sbin/podman-registry-copy-certs.sh
+    seuser: system_u
+    serole: object_r
+    mode: '0755'
+
+# - name: Enable podman registry
+#   ansible.builtin.systemd_service:
+#     name: podman-registry.service
+#     status: started
+#   environment: 
+#     XDG_RUNTIME_DIR: "/run/usr/{{getent_passwd[podman_registry_user].1}}"
+

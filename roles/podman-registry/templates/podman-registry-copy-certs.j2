@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CERT_PATH="{{podman_registry_path}}/certs"
+cp /etc/letsencrypt/live/{{podman_registry_hostname}}/*.pem ${CERT_PATH}/
+
+chown {{podman_registry_user}}:{{podman_registry_user}} ${CERT_PATH}/*.pem
+
+chmod 640 ${CERT_PATH}/*.pem

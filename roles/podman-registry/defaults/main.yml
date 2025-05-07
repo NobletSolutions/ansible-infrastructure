@@ -1,0 +1,17 @@
+podman_registry_user: registry
+podman_registry_path: /srv/registry
+
+podman_registry_packages:
+  - podman
+  - httpd-tools
+
+podman_registry_htpasswd_file: htpasswd
+podman_registry_directories:
+  - auth
+  - certs
+  - data
+
+podman_registry_auth_users:
+  - { username: prolegis, password: prolegis2025 }
+
+podman_registry_hostname: 

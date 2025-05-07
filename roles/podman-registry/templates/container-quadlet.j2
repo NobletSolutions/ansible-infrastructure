@@ -1,0 +1,21 @@
+[Unit]
+Description=The registry server container
+After=local-fs.target
+
+[Container]
+Image=docker.io/library/registry:2
+Volume={{podman_registry_path}}/data:/var/lib/registry:z
+Volume={{podman_registry_path}}/auth:/auth:z
+Volume={{podman_registry_path}}/certs:/certs:z
+PublishPort=5000:5000
+
+Environment=REGISTRY_AUTH=htpasswd
+Environment=REGISTRY_AUTH_HTPASSWD_REALM=Prolegis Container Registry
+Environment=REGISTRY_AUTH_HTPASSWD_PATH=/auth/{{podman_registry_htpasswd_file}}
+Environment=REGISTRY_HTTP_TLS_CERTIFICATE=/certs/cert.pem
+Environment=REGISTRY_HTTP_TLS_KEY=/certs/privkey.pem
+Environment=REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true 
+
+[Install]
+# Start by default on boot
+WantedBy=multi-user.target default.target
