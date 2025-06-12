@@ -5,6 +5,10 @@
 - name: Ensure chronyd is running
   service: name=chronyd state=started enabled=yes
 
+- name: Install additionally required packages
+  ansible.builtin.dnf: name="{{ item }}" state=present
+  loop: "{{ base_additional_packages }}"
+
 - include_tasks: protect-dev-shm.yml
 - include_tasks: randomize-mem.yml
 - include_tasks: disable-kernel-modules.yml
@@ -18,3 +22,4 @@
 - include_tasks: password-rules.yml
   when: '"bash" in ansible_facts.packages'
 - include_tasks: harden-session.yml
+- include_tasks: configure-security-updates.yml

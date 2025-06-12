@@ -1,0 +1,10 @@
+[Unit]
+Description=Apply Security Updates Timer
+Requires=dnf-security-update.service
+
+[Timer]
+Unit=dnf-security-update.service
+OnCalendar=Fri *-*-* 20:00:00
+
+[Install]
+WantedBy=multi-user.target

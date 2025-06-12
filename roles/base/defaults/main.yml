@@ -4,6 +4,7 @@ base_additional_packages:
   - vim
   - haveged
   - chrony
+  - python-google-chat-notifier
 
 base_account_disable_post_pw_expiration: 30
 base_accounts_maximum_age_login_defs: 365
