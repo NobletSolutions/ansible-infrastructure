@@ -1,0 +1,11 @@
+[Unit]
+Description=Apply Security Updates
+Wants=dnf-security-update.timer
+OnFailure=google-chat-notifier@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=dnf update --security -y
+
+[Install]
+WantedBy=multi-user.target

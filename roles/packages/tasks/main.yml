@@ -22,6 +22,8 @@
   ansible.builtin.dnf: name="{{ item }}" state=present
   loop: "{{ packages_additional_packages }}"
 
+- include_tasks: configure-security-updates.yml
+
 - name: Update all packages to latest version
   ansible.builtin.dnf: name=* state=latest
   when: ansible_os_family == "RedHat"

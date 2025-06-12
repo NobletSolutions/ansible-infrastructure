@@ -5,3 +5,4 @@ packages_default_packages:
   - chrony
   - rng-tools
   - policycoreutils-python-utils
+  - python-google-chat-notifier
