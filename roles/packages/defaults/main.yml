@@ -6,3 +6,4 @@ packages_default_packages:
   - rng-tools
   - policycoreutils-python-utils
   - python-google-chat-notifier
+packages_update_all: false

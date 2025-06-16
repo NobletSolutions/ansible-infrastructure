@@ -25,8 +25,8 @@
 - include_tasks: configure-security-updates.yml
 
 - name: Update all packages to latest version
-  ansible.builtin.dnf: name=* state=latest
-  when: ansible_os_family == "RedHat"
+  ansible.builtin.package: name=* state=latest
+  when: packages_update_all and ansible_os_family == "RedHat"
   notify:
     - update aide
 
