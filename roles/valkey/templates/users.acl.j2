@@ -1,0 +1,9 @@
+user default on ~* &* +@all >{{valkey_default_password}}
+{% if not valkey_replica and valkey_replica_user and valkey_replica_password %}
+user {{valkey_replica_user}} on ~* &* +sync +psync +replconf +ping >{{valkey_replica_password}}
+
+{% endif %}
+
+{% for user in valkey_users %}
+{{user}}
+{% endfor %}

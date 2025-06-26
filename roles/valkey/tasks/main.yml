@@ -1,0 +1,101 @@
+---
+- name: Ensure required variables are set
+  ansible.builtin.assert:
+    that:
+      - valkey_loglevel|length > 0
+      - valkey_default_password|length > 0
+    fail_msg: "'valkey_loglevel and valkey_default_password' must be set"
+
+- name: Ensure required tls variables are set
+  ansible.builtin.assert:
+    that:
+      - valkey_tls_hostname
+      - valkey_tls_hostname|length > 0
+    fail_msg: "'valkey_tls_hostname' must be set when valkey_tls_enabled is true"
+  when: valkey_tls_enabled
+
+- name: Install valkey
+  ansible.builtin.package:
+    name: valkey
+    state: latest
+
+- name: Configure valkey
+  ansible.builtin.template:
+    src: valkey.conf.j2
+    dest: /etc/valkey/valkey.conf
+    owner: valkey
+    group: root
+    mode: 0640
+    seuser: system_u
+    setype: etc_t
+  notify: update aide
+
+- name: Configure extra valkey config
+  ansible.builtin.template:
+    src: extra.conf.j2
+    dest: /etc/valkey/valkey-extra.conf
+    owner: valkey
+    group: root
+    mode: 0640
+    seuser: system_u
+    setype: etc_t
+  when: valkey_conf_extra and valkey_conf_extra | length > 0
+  notify: update aide
+
+- name: Configure users
+  ansible.builtin.template:
+    src: users.acl.j2
+    dest: /etc/valkey/users.acl
+    owner: valkey
+    group: root
+    mode: 0640
+    seuser: system_u
+    setype: etc_t
+  notify: update aide
+
+- name: Retrieve letsencrpt root cert
+  ansible.builtin.get_url:
+    dest: /etc/valkey/certs/ca.pem
+    url: https://letsencrypt.org/certs/isrgrootx1.pem
+    owner: root
+    group: valkey
+    mode: 0640
+    seuser: system_u
+    setype: etc_t
+
+- name: Enable certbot post-hook
+  ansible.builtin.template:
+    src: certbot-handler.sh.j2
+    dest: /usr/local/sbin/vk-certs.sh
+    owner: root
+    group: root
+    mode: 0750
+    seuser: system_u
+  when: valkey_tls_enabled
+  notify: update aide
+
+- name: Enable valkey service
+  ansible.builtin.systemd:
+    name: valkey
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Allow traffic through firewall
+  ansible.posix.firewalld:
+    port: '{{ valkey_port }}/tcp'
+    zone: "{{ valkey_firewall_zone }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  when: valkey_firewall_permitted_sources|length == 0
+
+- name: Allow specfic traffic through firewall
+  ansible.builtin.firewalld:
+    zone: "{{valkey_firewall_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port port={{valkey_port}} protocol=tcp accept"
+  when: valkey_firewall_permitted_sources|length > 0
+  loop: "{{ valkey_firewall_permitted_sources }}"

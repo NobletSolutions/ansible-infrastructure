@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CERT_DIRECTORY=/etc/valkey/certs
+
+if [ ! -d "$CERT_DIRECTORY" ]; then
+mkdir -p $CERT_DIRECTORY
+chown root:valkey $CERT_DIRECTORY
+chmod 750 $CERT_DIRECTORY
+fi
+
+cp /etc/letsencrypt/live/{{valkey_tls_hostname}}/* $CERT_DIRECTORY
+chown root:valkey $CERT_DIRECTORY/*
+chcon -u system_u -t etc_t $CERT_DIRECTORY/*
+chmod 640 $CERT_DIRECTORY/*

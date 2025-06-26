@@ -1,0 +1,23 @@
+valkey_max_memory: 128mb
+valkey_max_memory_policy: allkeys-lfu
+valkey_loglevel: notice
+valkey_default_password: 
+valkey_users: []
+valkey_port: 6379
+valkey_listen: 127.0.0.1 -::1
+
+valkey_tls_enabled: false
+valkey_tls_hostname: null
+valkey_tls_cert_path: /data/cert.pem
+valkey_tls_key_path: /data/key.pem
+valkey_tls_ca_path: /data/ca.pem
+valkey_conf_extra: ~
+
+valkey_replica: false
+valkey_replica_user: replicauser
+valkey_replica_password: ~
+valkey_replica_of: ~
+valkey_replica_primaryauth: ~
+
+valkey_firewall_permitted_sources: []
+valkey_firewall_zone: public
