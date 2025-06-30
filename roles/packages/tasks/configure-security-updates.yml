@@ -5,7 +5,7 @@
     dest: "/etc/systemd/system/dnf-security-update.service"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
 
 - name: Create DNF security update timer
   ansible.builtin.template:
@@ -13,7 +13,7 @@
     dest: "/etc/systemd/system/dnf-security-update.timer"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
 
 - name: Reload systemd daemon
   ansible.builtin.systemd_service:
