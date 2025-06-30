@@ -8,24 +8,45 @@
     - rsync
 
 - name: Add rsnapshot-common config
-  template: src=common.j2 dest=/etc/rsnapshot-common.conf owner=root group=root mode=644
+  ansible.builtin.template:
+    src: common.j2
+    dest: /etc/rsnapshot-common.conf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Setup backup target directory
-  file: path="{{backup_server_directory}}" state=directory owner=root group=root mode=700
+  ansible.builtin.file:
+    path: "{{backup_server_directory}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
 
 - name: Create root SSH public key
-  user: name=root generate_ssh_key=yes
+  ansible.builtin.user:
+    name: root
+    generate_ssh_key: yes
 
-# - name: Create main directory structure
-#   file: path="{{backup_server_directory}}/{{item.name}}/.sync" recurse=yes state=directory
-#   with_items: "{{ backup_server_configs }}"
+- name: Create main directory structure
+  ansible.builtin.file:
+    path: "{{backup_server_directory}}/{{item.name}}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  with_items: "{{ backup_server_configs }}"
 
 - name: Create config
-  template: src=rsnapshot.conf.j2 dest="{{backup_server_directory}}/{{item.name}}/rsnapshot.conf"
+  ansible.builtin.template:
+    src: rsnapshot.conf.j2
+    dest: "{{backup_server_directory}}/{{item.name}}/rsnapshot.conf"
   with_items: "{{ backup_server_configs }}"
 
 - name: Add exclude_file.txt
-  template: src=exclude.j2 dest="{{backup_server_directory}}/{{item.name}}/exclude_file.txt"
+  ansible.builtin.template:
+    src: exclude.j2
+    dest: "{{backup_server_directory}}/{{item.name}}/exclude_file.txt"
   with_items: "{{ backup_server_configs }}"
 
 - name: Scan for SSH host keys.
@@ -50,7 +71,7 @@
     dest: "/etc/systemd/system/{{ item }}"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
   with_items: "{{ backup_server_systemd_services }}"
 
 - name: Add Systemd Rsnapshot Hourly Timers
@@ -59,7 +80,7 @@
     dest: "/etc/systemd/system/rsnapshot-hourly@{{ item.name }}.timer"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
   with_items: "{{ backup_server_configs }}"
 
 - name: Add Systemd Rsnapshot Daily Timers
@@ -68,7 +89,7 @@
     dest: "/etc/systemd/system/rsnapshot-daily@{{ item.name }}.timer"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
   with_items: "{{ backup_server_configs }}"
 
 - name: Add Systemd Rsnapshot Weekly Timers
@@ -77,7 +98,7 @@
     dest: "/etc/systemd/system/rsnapshot-weekly@{{ item.name }}.timer"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
   with_items: "{{ backup_server_configs }}"
 
 - name: Add Systemd Rsnapshot Monthly Timers
@@ -86,5 +107,37 @@
     dest: "/etc/systemd/system/rsnapshot-monthly@{{ item.name }}.timer"
     owner: root
     group: root
-    mode: 644
+    mode: 0644
+  with_items: "{{ backup_server_configs }}"
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Enable Hourly Timers
+  ansible.builtin.systemd_service:
+    name: "rsnapshot-hourly@{{ item.name }}.timer"
+    state: started
+    enabled: true
+  with_items: "{{ backup_server_configs }}"
+
+- name: Enable Daily Timers
+  ansible.builtin.systemd_service:
+    name: "rsnapshot-daily@{{ item.name }}.timer"
+    state: started
+    enabled: true
+  with_items: "{{ backup_server_configs }}"
+
+- name: Enable Weekly Timers
+  ansible.builtin.systemd_service:
+    name: "rsnapshot-weekly@{{ item.name }}.timer"
+    state: started
+    enabled: true
+  with_items: "{{ backup_server_configs }}"
+
+- name: Enable Monthly Timers
+  ansible.builtin.systemd_service:
+    name: "rsnapshot-monthly@{{ item.name }}.timer"
+    state: started
+    enabled: true
   with_items: "{{ backup_server_configs }}"

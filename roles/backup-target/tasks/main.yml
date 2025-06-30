@@ -12,7 +12,11 @@
     - sudo
 
 - name: Add backup system user
-  user: name="{{ backup_target_user }}" shell=/bin/bash update_password=on_create
+  ansible.builtin.user:
+    name: "{{ backup_target_user }}"
+    shell: /bin/bash
+    update_password: on_create
+    password_expire_max: -1
 
 - name: Create user .ssh directory
   ansible.builtin.file:
@@ -27,15 +31,22 @@
     type: ed25519
 
 - name: Sudo configuration for the backup system user
-  template: src=sudo.j2 dest="/etc/sudoers.d/{{ backup_target_user }}" owner=root group=root mode=0440
+  ansible.builtin.template: src=sudo.j2 dest="/etc/sudoers.d/{{ backup_target_user }}" owner=root group=root mode=0440
 
 - name: Ensure requiretty is off
-  lineinfile: dest=/etc/sudoers state=absent regexp="^Defaults    requiretty"
+  ansible.builtin.lineinfile: dest=/etc/sudoers state=absent regexp="^Defaults    requiretty"
 
 - name: Install the 'rsync-wrapper.sh' script, called by the master
-  copy: src=rsync-wrapper.sh dest=/usr/local/bin/rsync-wrapper.sh owner=root group="{{ backup_target_user }}" mode=0755
+  ansible.builtin.copy:
+    src: rsync-wrapper.sh
+    dest: /usr/local/bin/rsync-wrapper.sh
+    owner: root
+    group: "{{ backup_target_user }}"
+    mode: 0755
 
 - name: Set the SSH public key for the backup system user
-  authorized_key: user="{{ backup_target_user }}" key="{{ backup_target_master_ssh_pubkey }}"
+  authorized_key:
+    user: "{{ backup_target_user }}"
+    key: "{{ backup_target_master_ssh_pubkey }}"
   notify:
     - update aide
