@@ -41,5 +41,5 @@
 - name: Configure AllowGroups
   ansible.builtin.lineinfile:
     line: "AllowGroups {{ sshd_admin_group_name }} {{ sshd_allow_admin_groups|join(' ') }}"
-    path: /etc/ssh/ssh_config.d/allow-groups.conf
+    path: /etc/ssh/sshd_config.d/allow-groups.conf
     create: true
