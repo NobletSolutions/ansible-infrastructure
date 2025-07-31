@@ -6,6 +6,10 @@
   authorized_key: user="{{sshd_admin_user}}" state=present key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
   with_items: '{{sshd_public_keys}}'
 
+- name: Remove revoked public keys admin user
+  authorized_key: user="{{sshd_admin_user}}" state=absent key='{{ lookup('file', sshd_key_path + item) }}' manage_dir=yes
+  with_items: '{{sshd_revoked_public_keys}}'
+
 - name: Reconfigure SSH to only allow access using key-based authentication
   lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PasswordAuthentication" line="PasswordAuthentication no"
 

@@ -3,6 +3,14 @@
     name: "{{ sshd_admin_group_name }}"
     state: present
 
+- name: Ensure default admin is part of admin group
+  ansible.builtin.user:
+    name: "{{ sshd_admin_user }}"
+    comment: "Admin account for {{ sshd_admin_user }}"
+    groups: "wheel,{{ sshd_admin_group_name }}"
+    append: yes
+  when: sshd_admin_user != "root"
+
 - name: Create Additional Admin "{{ item.name }}"
   ansible.builtin.user:
     name: "{{ item.name }}"
