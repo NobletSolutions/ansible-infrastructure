@@ -3,10 +3,10 @@ rabbitmq_dnf_repo_key_urls:
   - https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
   - https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key
 
-rabbitmq_default_user: 
+rabbitmq_default_user:
 rabbitmq_default_pass:
 
-rabbitmq_management_enable: disable
+rabbitmq_management_enable: enable
 rabbitmq_tls_enabled: false
 rabbitmq_tls_hostname:
 
