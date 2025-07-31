@@ -70,6 +70,7 @@
     dest: /etc/rabbitmq/enabled_plugins
     seuser: system_u
     group: rabbitmq
+    mode: 0640
 
 - name: Include TLS Tasks
   include_tasks: tls.yml
@@ -79,7 +80,7 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
 
-- name: Enable & Start rabbitmq 
+- name: Enable & Start rabbitmq
   ansible.builtin.systemd_service:
     name: "rabbitmq-server"
     enabled: true
