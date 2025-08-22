@@ -48,7 +48,21 @@
 - name: Start tangd.socket
   service: name=tangd.socket state=started enabled=true
 
-- name: Allow ipv4 access to tangd socket nbe
+- name: Get existing firewalld rules
+  ansible.builtin.shell:
+    cmd: "sudo firewall-cmd --zone {{ tangd_firewall_zone }} --list-rich-rules|grep {{ tangd_port }}"
+  register: tangd_existing_firewall
+
+- name: Remove ipv4 access to tangd 
+  ansible.builtin.firewalld:
+    zone: "{{ tangd_firewall_zone }}"
+    permanent: true
+    immediate: true
+    state: disabled
+    rich_rule: "{{ item }}"
+  loop: "{{ tangd_existing_firewall.stdout_lines }}"
+
+- name: Allow ipv4 access to tangd port
   ansible.builtin.firewalld:
     zone: "{{tangd_firewall_zone}}"
     permanent: true
