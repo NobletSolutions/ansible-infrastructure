@@ -69,4 +69,4 @@
     immediate: true
     state: enabled
     rich_rule: "rule family=ipv4 source address={{item}} port port={{tangd_port}} protocol=tcp accept"
-  loop: "{{ tandg_allowed_source_ips }}"
+  loop: "{{ tangd_allowed_source_ips }}"
