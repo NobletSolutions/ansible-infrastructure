@@ -3,3 +3,13 @@ mysql_root_password: MySQLRootPassword
 mysql_old_root_password: False
 mysql_oom_score_adj: -1000
 mysql_enable_module: False
+mysqld_firewall_zone: public
+mysqld_allowed_source_ips: []
+mysqld_additional_users: []
+# Define users (requires SSL by default, define tls_requirement: X to change the defaults)
+# - {username: user, password: pass, host: hostname, privs: ["'db1.*': 'ALL'","'db2.*': 'ALL,GRANT'"], resource_limits: {MAX_USER_CONNECTIONS: 2}}
+
+mysqld_removed_users: []
+# Define users that should be removed
+# - user1
+# - user2

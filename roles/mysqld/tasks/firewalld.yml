@@ -1,0 +1,22 @@
+- name: Get existing firewalld rules
+  ansible.builtin.shell:
+    cmd: "sudo firewall-cmd --zone {{ mysqld_firewall_zone }} --list-rich-rules|grep 3306"
+  register: mysqld_existing_firewall
+
+- name: Remove ipv4 access to mysqld 
+  ansible.builtin.firewalld:
+    zone: "{{ mysqld_firewall_zone }}"
+    permanent: true
+    immediate: true
+    state: disabled
+    rich_rule: "{{ item }}"
+  loop: "{{ mysqld_existing_firewall.stdout_lines }}"
+
+- name: Allow ipv4 access to mysqld port
+  ansible.builtin.firewalld:
+    zone: "{{mysqld_firewall_zone}}"
+    permanent: true
+    immediate: true
+    state: enabled
+    rich_rule: "rule family=ipv4 source address={{item}} port port=3306 protocol=tcp accept"
+  loop: "{{ mysqld_allowed_source_ips }}"

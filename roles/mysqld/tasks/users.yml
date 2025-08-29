@@ -1,0 +1,21 @@
+- name: Create additional users (expected to be remote)
+  community.mysql.mysql_user:
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: "{{item.username}}"
+    password: "{{item.password}}"
+    host: "{{item.host|default('localhost')}}"
+    priv: "{{item.privs}}"
+    tls_requires: "{{ item.tls_requirement|default({'SSL': {}}) }}"
+    resource_limits: "{{ item.resource_limits|default({'MAX_USER_CONNECTIONS': 3}) }}"
+  loop: "{{ mysqld_additional_users }}"
+
+- name: Remove users
+  community.mysql.mysql_user:
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: "{{item}}"
+    host_all: true
+  loop: "{{ mysqld_removed_users }}"

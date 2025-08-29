@@ -23,3 +23,9 @@
 
 - name: remove the test database
   mysql_db: name=test state=absent login_user=root login_password="{{mysql_root_password}}" 
+
+- include_tasks: firewalld.yml
+  when: mysqld_allowed_source_ips|length > 0
+
+- include_tasks: users.yml
+  when: mysqld_additional_users|length > 0 or mysqld_removed_users|length > 0
