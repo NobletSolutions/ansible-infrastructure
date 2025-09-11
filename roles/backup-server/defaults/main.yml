@@ -1,4 +1,9 @@
 ---
+backup_server_hourly_time: "*-*-* *:00:00"
+backup_server_daily_time: "*-*-* 00:10:00"
+backup_server_weekly_time: "Sat *-*-* 05:25:00"
+backup_server_monthly_time: "*-*-01 03:17:00"
+
 backup_server_target_user: root
 backup_server_hourly: 24
 backup_server_daily: 7
@@ -23,3 +28,15 @@ backup_server_systemd_services:
   - rsnapshot-hourly@.service
   - rsnapshot-weekly@.service
   - rsnapshot-monthly@.service
+
+backup_server_configs: []
+#  - name: some-name
+#    host: server.example.net
+#    points:
+#     - user@server.example.net:/etc/
+#     - user@server.example.net:/var/www/
+#    time:
+#      hourly: "*-*-* *:30:00"
+#      daily: "*-*-* 00:40:00"
+#      weekly: "Sun *-*-* 05:47:00"
+#      monthly: "*-*-01 04:55:00"

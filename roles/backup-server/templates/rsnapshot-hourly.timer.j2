@@ -2,8 +2,9 @@
 Description=Rsnapshot hourly timer: {{ item.name }}
 
 [Timer]
-OnCalendar=hourly
-RandomizedDelaySec=2700
+OnCalendar={{ item.time.hourly | default(backup_server_hourly_time) }}
+RandomizedDelaySec=90
+
 
 [Install]
 WantedBy=multi-user.target

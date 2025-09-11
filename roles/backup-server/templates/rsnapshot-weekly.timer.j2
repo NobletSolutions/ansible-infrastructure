@@ -2,8 +2,8 @@
 Description=Rsnapshot weekly timer: {{ item.name }}
 
 [Timer]
-OnCalendar=Sat *-*-* 05:00:00
-RandomizedDelaySec=2700
+OnCalendar={{ item.time.weekly | default(backup_server_weekly_time) }}
+RandomizedDelaySec=90
 
 [Install]
 WantedBy=multi-user.target

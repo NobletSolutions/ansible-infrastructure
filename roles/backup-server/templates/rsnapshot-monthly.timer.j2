@@ -2,8 +2,8 @@
 Description=Rsnapshot monthly timer: {{ item.name }}
 
 [Timer]
-OnCalendar=*-*-01 03:00:00
-RandomizedDelaySec=2700
+OnCalendar={{ item.time.monthly | default(backup_server_monthly_time) }}
+RandomizedDelaySec=90
 
 [Install]
 WantedBy=multi-user.target

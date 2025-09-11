@@ -2,8 +2,8 @@
 Description=Rsnapshot daily timer: {{ item.name }}
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
-RandomizedDelaySec=3600
+OnCalendar={{ item.time.daily | default(backup_server_daily_time) }}
+RandomizedDelaySec=90
 
 [Install]
 WantedBy=multi-user.target
